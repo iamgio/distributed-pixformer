@@ -1,0 +1,81 @@
+.root {
+    -fx-background-color: cornflowerblue;
+}
+
+.root > * {
+    -fx-spacing: 50;
+}
+
+.text {
+    -fx-font-smoothing-type: gray;
+    -fx-font-family: "Monomaniac One";
+}
+
+.label {
+    -fx-text-fill: white;
+}
+
+.title {
+    -fx-font-size: 35;
+    -fx-alignment: center;
+}
+
+.subtitle, .levels-text, .players-text, .players-amount, .score-title {
+    -fx-font-size: 25;
+    -fx-alignment: center;
+}
+
+.subtitle {
+    -fx-opacity: .7;
+    -fx-text-alignment: center;
+}
+
+.score-title {
+    -fx-padding: 0 0 5 0;
+}
+
+.score-entry {
+    -fx-opacity: .85;
+}
+
+.score-entry {
+    -fx-font-size: 20;
+}
+
+.players-control {
+    -fx-alignment: center;
+    -fx-spacing: 20;
+}
+
+.players-control .button {
+    -fx-background-color: white;
+    -fx-text-fill: cornflowerblue;
+    -fx-font-size: 25;
+}
+
+.levels-box {
+    -fx-hgap: 20;
+    -fx-vgap: 20;
+    -fx-padding: 15 0 0 0;
+    -fx-alignment: center;
+}
+
+.levels-box .button {
+    -fx-text-fill: white;
+    -fx-background-color: transparent;
+    -fx-border-color: white;
+    -fx-border-width: 3;
+    -fx-border-radius: 16;
+    -fx-background-radius: 16;
+    -fx-font-size: 25;
+    -fx-cursor: hand;
+}
+
+.levels-box .button:hover {
+    -fx-background-color: rgba(255, 255, 255, .2);
+}
+
+.score {
+    -fx-padding: 20 0 0 20;
+    -fx-spacing: 4;
+}
