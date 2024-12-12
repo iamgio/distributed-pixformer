@@ -10,3 +10,6 @@ out/
 .project
 .classpath
 .settings/
+
+# Quarkdown
+report/output/

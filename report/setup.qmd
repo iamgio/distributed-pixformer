@@ -1,0 +1,14 @@
+.docname {Pixformer: Multiplayer Super Mario}
+.doclang {English}
+.doctype {paged}
+.docauthor {Giorgio Garofalo}
+
+.include {paper}
+
+.center
+    #! Pixformer
+    **Multiplayer Super Mario**
+
+    - [.docauthor](mailto:giorgio.garofalo5@studio.unibo.it)
+    
+.whitespace

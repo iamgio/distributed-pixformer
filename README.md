@@ -3,9 +3,10 @@ Pixformer is a platform game inspired by Super Mario,
 where you have to accumulate points by killing enemies
 and grabbing coins in order to reach the end of the level.
 
-This project was made for the Object Oriented Programming
+This project was originally made for the Object Oriented Programming
 course of the Computer Science and Engineering department of UniBo,
-Cesena.
+Cesena (original repo: [iamgio/OOP22-pixformer](https://github.com/iamgio/OOP22-pixformer))
+and then extended for the Distributed System course.
 
 ## Controls
 
@@ -23,9 +24,13 @@ Cesena.
 
 ## Credits
 
+Original game:
 - Giacomo Antonelli
 - Giorgio Garofalo
 - Nicolò Ghignatti
 - Luca Patrignani
+
+Distributed patch:
+- Giorgio Garofalo
 
 Sprites by [webfussel](https://webfussel.itch.io/more-bit-8-bit-mario).
