@@ -23,24 +23,15 @@ No data is stored, but a lot of information needs to be exchanged.
 
 # Requirements
 
-- The requirements must explain __what__ (not how) the software being produced should do. 
-    * you should not focus on the particular problems, but exclusively on what you want the application to do.
-
-- Requirements must be clearly identified, and possibly numbered
-
-- Requirements are divided into:
-    - **Functional**: some functionality the software should provide to the user
-    - **Non-functional**: requirements that do not directly concern behavioural aspects, such as consistency, availability, etc.
-    - **Implementation**: constrain the entire phase of system realization, for instance by requiring the use of a specific programming language and/or a specific software tool
-        + these constraints should be adequately justified by political / economic / administrative reasons...
-        + ... otherwise, implementation choices should emerge _as a consequence of_ design
-
-- If there are domain-specific terms, these should be explained in a glossary
-
-- Each requirement must have its own __acceptance criteria__
-    + these will be important for the validation phase
-    
 #### Functional requirements
+
+- In the main menu, the user will be asked to join a game.  
+  If the prompted game does not exist, it will be created and said user is the leader.  
+  The system must be scalable enough to allow players to join a game at any time;
+  
+- Fault tolerance: if a player goes offline he will be kicked out of the game, and will be able to join again
+  and start from his previous position and statistics.
+    - However, if the creator of the game goes offline, the game will end.
 
 - During the game, a player will encounter different enemies, each with their own behavior:
     - Goomba: a small, brown, walking mushroom that can be defeated by jumping on it;
@@ -48,7 +39,7 @@ No data is stored, but a lot of information needs to be exchanged.
 
 - A player can grab and use different power-ups:
     - Mushroom: increases Mario's height;
-    - Fire flower: allows Mario to shoot fireballs.
+    - Fire Flower: allows Mario to shoot fireballs.
   
   If the player is hit by an enemy and has active power-ups, the most significant one is lost.
   
@@ -66,57 +57,93 @@ No data is stored, but a lot of information needs to be exchanged.
   
   A level finishes when all players have ended their game.
   
-### Non-functional requirements
+#### Non-functional requirements
 
 - The game must run on the three main operative systems without any major difference;
 - The codebase must be maintainable and scalable;
-- The latency must be minimal to ensure a good experience.
+- Latency must be minimal to ensure a smooth experience.
 
 # Design
 
-This chapter explains the strategies used to meet the requirements identified in the analysis.
-Ideally, the design should be the same, regardless of the technological choices made during the implementation phase.
+## Architecture
 
-> You can re-order the sections as you prefer, but all the sections must be present in the end
+The adopted architecture is a slight variation of client-server, the ***leader-follower*** pattern:
+- The architecture is centralized by means of a server. However, it becomes an invisible detail for the user.
+- When the client attempts a connection to a server and it fails, it sets the server up and connects to it again.  
+  By doing so, the client is the leader;
+- Other clients that join are followers.
 
-### Architecture
+This architecture was chosen because of simplicity, efficacy, speed and complexity hiding from the user.
+An alternative that was thoroughsly considered was a peer-to-peer architecture which consisted of one server
+per user, where all the servers could communicate and use some replication system.  
+This strategy was discarded because of high complexity and performance issues, with the only benefit
+being a better fault tolerance in case one server goes offline.
 
-- Which architectural style? 
-    + why?
+On top of that, the system adopts a ***client-side prediction and server reconciliation*** pattern:
+- The client processes user inputs (e.g. player movement) immediately in order to provide a responsive experience,
+  updating its local game state independently. The event message is sent to the server.
+- The server receives the event, updates its internal game state and broadcasts the event to the other clients,
+  which update their game state as well.
+- The server acts as the authoritative source of truth, periodically sending its internal game state to the clients.
+  This ensures consistency across clients, which may otherwise be compromised by latency or packet loss.
 
 ## Infrastructure
 
-- are there _infrastructural components_ that need to be introduced? _how many_?
-    * e.g. _clients_, _servers_, _load balancers_, _caches_, _databases_, _message brokers_, _queues_, _workers_, _proxies_, _firewalls_, _CDNs_, _etc._
+- Each player is a client. $ N $ players can join a game;
+- There is one server per game, located on the same machine as the leader client;
+- For development and simplicity purposes, all clients will be running on the same machine.  
+  However, it is possible for clients to be distributed across the world as long as the leader's firewall
+  accepts connections from outside the network;
+- Data isn't stored, and the state of the game is replicated on all $ N $ clients;
+- Clients are assumed to know the IP of the server, as it is typed by the user before joining a game;
+- No authentication is performed, mutual trust is assumed;
+- Communication is performed via a *publish-subscribe* pattern: since the game is heavily event-based,
+  clients will mainly announce the trigger of an event to the server, which may process it and eventually
+  forward it to the other clients, hence clients are both publishers and subscribers;
+- Entity mapping:
+  - The game loop is performed both on client and server side,
+    with the server periodically sending alignment updates to clients.
+  - The rendering process is performed on the client side.
 
-- how do components	_distribute_ over the network? _where_?
-    * e.g. do servers / brokers / databases / etc. sit on the same machine? on the same network? on the same datacenter? on the same continent?
+.box {TO DO}
+    > Component diagrams are welcome here
 
-- how do components _find_ each other?
-    * how to _name_ components?
-    * e.g. DNS, _service discovery_, _load balancing_, _etc._
-
-> Component diagrams are welcome here
+<<<
 
 ## Modelling
 
-- which __domain entities__ are there?
-    * e.g. _users_, _products_, _orders_, _etc._
+The domain entities are:
+- Players;
+- Enemies (Goomba, Koopa);
+- Power-ups (Mushroom, Fire Flower);
+- End flag;
 
-- how do _domain entities_ __map to__ _infrastructural components_?
-    * e.g. state of a video game on central server, while inputs/representations on clients
-    * e.g. where to store messages in an IM app? for how long?
+Domain events are:
+- Player:
+    - joins;
+    - quits;
+    - moves horizontally;
+    - jumps;
+    - defeats enemy;
+    - collects coin;
+    - gets power-up;
+    - shoots a fireball;
+    - hits surprise/destructible block from below;
+    - ends his game (by either enemy damage or falling);
+- Enemy:
+    - damages player;
+    - changes state (e.g. Koopa retreats in its shell);
 
-- which __domain events__ are there?
-    * e.g. _user registered_, _product added to cart_, _order placed_, _etc._
+Clients send only event messages to the server. The server can send one of the two following messages to clients:
+- Event messages received by a client, which are forwarded via broadcast to all the clients;
+- A command to realign to the centralized game state, which is attached in the message body and contains:
+    - Online players and their score;
+    - All entities in the world and their position, velocity and state.
 
-- which sorts of __messages__ are exchanged?
-    * e.g. _commands_, _events_, _queries_, _etc._
+.box {TODO}
+    > Class diagram are welcome here
 
-- what information does the __state__ of the system comprehend
-    * e.g. _users' data_, _products' data_, _orders' data_, _etc._
-
-> Class diagram are welcome here
+<<<
 
 ## Interaction
 

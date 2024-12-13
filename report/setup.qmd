@@ -3,6 +3,9 @@
 .doctype {paged}
 .docauthor {Giorgio Garofalo}
 
+.footer
+    .currentpage
+
 .include {paper}
 
 .center
