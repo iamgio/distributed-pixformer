@@ -69,29 +69,21 @@ No data is stored, but a lot of information needs to be exchanged.
 
 The adopted architecture is a slight variation of client-server, the ***leader-follower*** pattern:
 - The architecture is centralized by means of a server. However, it becomes an invisible detail for the user.
-- When the client attempts a connection to a server and it fails, it sets the server up and connects to it again.  
-  By doing so, the client is the leader;
+- When the client attempts a connection to a server and it fails, it sets the server up and connects to it again.
+  By doing so, this client is the leader;
 - Other clients that join are followers.
 
 This architecture was chosen because of simplicity, efficacy, speed and complexity hiding from the user.
-An alternative that was thoroughsly considered was a peer-to-peer architecture which consisted of one server
+An alternative that was thoroughly considered was a peer-to-peer architecture which consisted of one server
 per user, where all the servers could communicate and use some replication system.  
 This strategy was discarded because of high complexity and performance issues, with the only benefit
 being a better fault tolerance in case one server goes offline.
-
-On top of that, the system adopts a ***client-side prediction and server reconciliation*** pattern:
-- The client processes user inputs (e.g. player movement) immediately in order to provide a responsive experience,
-  updating its local game state independently. The event message is sent to the server.
-- The server receives the event, updates its internal game state and broadcasts the event to the other clients,
-  which update their game state as well.
-- The server acts as the authoritative source of truth, periodically sending its internal game state to the clients.
-  This ensures consistency across clients, which may otherwise be compromised by latency or packet loss.
 
 ## Infrastructure
 
 - Each player is a client. $ N $ players can join a game;
 - There is one server per game, located on the same machine as the leader client;
-- For development and simplicity purposes, all clients will be running on the same machine.  
+- For development and simplicity purposes, all clients will be running on the same machine.
   However, it is possible for clients to be distributed across the world as long as the leader's firewall
   accepts connections from outside the network;
 - Data isn't stored, and the state of the game is replicated on all $ N $ clients;
@@ -102,7 +94,7 @@ On top of that, the system adopts a ***client-side prediction and server reconci
   forward it to the other clients, hence clients are both publishers and subscribers;
 - Entity mapping:
   - The game loop is performed both on client and server side,
-    with the server periodically sending alignment updates to clients.
+    with the server periodically sending alignment updates to clients (see *Interaction*).
   - The rendering process is performed on the client side.
 
 .box {TO DO}
@@ -134,11 +126,8 @@ Domain events are:
     - damages player;
     - changes state (e.g. Koopa retreats in its shell);
 
-Clients send only event messages to the server. The server can send one of the two following messages to clients:
-- Event messages received by a client, which are forwarded via broadcast to all the clients;
-- A command to realign to the centralized game state, which is attached in the message body and contains:
-    - Online players and their score;
-    - All entities in the world and their position, velocity and state.
+Aside for alignment messages (see *Interaction*), these events represent the only kind of message exchanged between
+server and clients.
 
 .box {TODO}
     > Class diagram are welcome here
@@ -147,10 +136,22 @@ Clients send only event messages to the server. The server can send one of the t
 
 ## Interaction
 
-- how do components _communicate_? _when_? _what_? 
-- _which_ __interaction patterns__ do they enact?
+The system adopts a ***client-side prediction and server reconciliation*** pattern:
+- The client processes user inputs (e.g. player movement) immediately in order to provide a responsive experience,
+  updating its local game state independently. The event message is sent to the server.
+- The server receives the event, updates its internal game state and broadcasts the event to the other clients,
+  which update their game state as well.
+- The server acts as the authoritative source of truth, periodically sending its internal game state to the clients.
+  This ensures consistency across clients, which may otherwise be compromised by latency or packet loss.
 
-> Sequence diagrams are welcome here
+Clients send only event messages to the server. The server can instead send one of the two following messages to clients:
+- Event messages received by a client, which are forwarded via broadcast to all the clients;
+- A command to reconciliate to the centralized game state, which is attached in the message body and contains:
+    - Online players and their score;
+    - All entities in the world and their position, velocity and state.
+
+.box {TODO}
+    > Sequence diagrams are welcome here
 
 ## Behaviour
 
@@ -158,6 +159,8 @@ Clients send only event messages to the server. The server can send one of the t
     * some components may be _stateful_, others _stateless_
 
 - which components are in charge of updating the __state__ of the system? _when_? _how_?
+
+
 
 > State diagrams are welcome here
 
