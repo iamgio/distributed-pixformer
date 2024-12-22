@@ -36,7 +36,7 @@ public class PlayerInputComponent extends UserInputComponent implements Complete
     private static final double SPRINT_SPEED = 0.000_6;
 
     // Max duration of a jump
-    private static final double INITIAL_JUMP_FORCE = -0.012;
+    private static final double INITIAL_JUMP_FORCE = -0.014;
 
     private static final double REVERSE_JUMP_FORCE = 0.000_25;
 
