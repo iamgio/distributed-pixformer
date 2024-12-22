@@ -95,6 +95,8 @@ public final class ControllerImpl implements Controller {
     }
 
     private void setupServerConnectionActions() {
+        this.getServerManager().setLevelSupplier(() -> this.getLevelManager().getCurrentLevel().orElse(null));
+
         this.getServerManager().setOnPlayerConnect(uuid -> {
             System.out.println("Player connected: " + uuid);
 

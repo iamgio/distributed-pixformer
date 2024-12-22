@@ -32,6 +32,8 @@ public class WorldImpl implements World {
 
     private Set<Entity> lazyUserControlledEntity;
 
+    private int lastId = 0;
+
     /**
      * Create a new World.
      *
@@ -106,6 +108,8 @@ public class WorldImpl implements World {
      */
     @Override
     public void spawnEntity(final Entity entity) {
+        entity.setId(this.lastId++);
+
         this.entities.add(entity);
         entity.onSpawn(this);
     }

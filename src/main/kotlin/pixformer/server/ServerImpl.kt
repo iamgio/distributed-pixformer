@@ -5,6 +5,8 @@ import io.ktor.server.application.install
 import io.ktor.server.application.log
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
+import io.ktor.server.response.respondText
+import io.ktor.server.routing.get
 import io.ktor.server.routing.routing
 import io.ktor.server.websocket.WebSockets
 import io.ktor.server.websocket.pingPeriod
@@ -17,6 +19,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import pixformer.controller.server.ServerManager
+import pixformer.serialization.LevelSerialization
 import java.util.*
 import kotlin.time.Duration.Companion.seconds
 
@@ -77,6 +80,13 @@ fun Application.ApplicationModule(manager: ServerManager) {
         }
 
         webSocket("/${Endpoints.PLAYER_JUMP}") {
+        }
+
+        get("/${Endpoints.REALIGN}") {
+            val level = manager.levelSupplier() ?: return@get
+
+            val serialized = LevelSerialization.serialize(level)
+            call.respondText(serialized)
         }
     }
 }

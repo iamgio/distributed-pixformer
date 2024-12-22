@@ -3,6 +3,7 @@ plugins {
     java
 
     kotlin("jvm") version "2.0.20"
+    kotlin("plugin.serialization") version "2.0.20"
 
     // Apply the application plugin to add support for building a CLI application
     // You can run your app via task "run": ./gradlew run
@@ -61,6 +62,7 @@ dependencies {
 
     val ktorVersion = "3.0.2"
 
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
     implementation("io.ktor:ktor-server-netty:$ktorVersion")
     implementation("io.ktor:ktor-server-websockets:$ktorVersion")
     implementation("io.ktor:ktor-client-core:$ktorVersion")

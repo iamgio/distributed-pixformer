@@ -14,11 +14,20 @@ import java.util.Optional;
  * In-Game entity.
  */
 public interface Entity extends Updatable {
-
     /**
      * @return the world this entity lives in, if it exists
      */
     Optional<World> getWorld();
+
+    /**
+     * @return the unique identifier of the entity
+     */
+    int getId();
+
+    /**
+     * @param id the unique identifier of the entity
+     */
+    void setId(int id);
 
     /**
      * @return X coordinate

@@ -6,4 +6,6 @@ package pixformer.server
 object Endpoints {
     const val PLAYER_CONNECT = "connect"
     const val PLAYER_JUMP = "jump"
+
+    const val REALIGN = "realign"
 }

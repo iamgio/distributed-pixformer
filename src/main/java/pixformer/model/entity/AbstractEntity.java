@@ -13,6 +13,7 @@ import java.util.Optional;
 public abstract class AbstractEntity implements MutableEntity {
 
     private World world;
+    private Integer id;
     private double x;
     private double y;
     private double width;
@@ -41,6 +42,18 @@ public abstract class AbstractEntity implements MutableEntity {
     @Override
     public Optional<World> getWorld() {
         return Optional.ofNullable(this.world);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getId() {
+        return this.id;
+    }
+
+    public void setId(final int id) {
+        this.id = id;
     }
 
     /**

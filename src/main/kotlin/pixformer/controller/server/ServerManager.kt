@@ -1,5 +1,6 @@
 package pixformer.controller.server
 
+import pixformer.model.Level
 import pixformer.model.modelinput.CompleteModelInput
 import java.util.*
 
@@ -10,6 +11,7 @@ interface ServerManager {
     val players: Map<UUID, CompleteModelInput>
 
     var onPlayerConnect: (UUID) -> Unit
+    var levelSupplier: () -> Level?
 
     fun startServer(port: Int)
 

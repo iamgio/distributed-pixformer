@@ -4,22 +4,27 @@ import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.io.IOException
+import pixformer.model.Level
 import pixformer.model.modelinput.CompleteModelInput
 import pixformer.server.MessageToServer
 import pixformer.server.PlayerConnectMessage
 import pixformer.server.Server
 import pixformer.server.ServerImpl
 import java.util.*
+import kotlin.concurrent.thread
 
 // todo temporary. allow custom port
 const val PORT = 8082
 
+@Suppress("DeferredResultUnused")
+@OptIn(DelicateCoroutinesApi::class)
 class ServerManagerImpl : ServerManager {
     private var server: Server? = null
 
     override val players = mutableMapOf<UUID, CompleteModelInput>()
 
     override var onPlayerConnect: (UUID) -> Unit = {}
+    override lateinit var levelSupplier: () -> Level?
 
     override fun startServer(port: Int) {
         server = ServerImpl(this).also { it.start(port) }
@@ -30,8 +35,6 @@ class ServerManagerImpl : ServerManager {
         MessageToServer(PlayerConnectMessage).send(port = port)
     }
 
-    @Suppress("DeferredResultUnused")
-    @OptIn(DelicateCoroutinesApi::class)
     override fun connectOrStart(port: Int) {
         GlobalScope.async {
             try {
@@ -40,6 +43,22 @@ class ServerManagerImpl : ServerManager {
                 startServer(port)
                 connectToServer(port)
             }
+        }
+
+        thread(start = true) { setupAlignmentRoutine() }
+    }
+
+    private fun setupAlignmentRoutine() {
+        // each 5 seconds, send a request to /align
+        while (true) {
+            println("REALIGNING")
+
+            try {
+                RealignRequest().send(port = PORT)
+            } catch (ignored: IOException) {
+            }
+
+            Thread.sleep(5000)
         }
     }
 }

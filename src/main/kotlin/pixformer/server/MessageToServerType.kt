@@ -24,7 +24,7 @@ sealed interface MessageToServerType {
  *
  */
 data object PlayerConnectMessage : MessageToServerType {
-    override val endpoint = "connect"
+    override val endpoint = Endpoints.PLAYER_CONNECT
 
     override suspend fun send(session: DefaultClientWebSocketSession) {
         session.send(Frame.Text(""))
@@ -38,7 +38,7 @@ data object PlayerConnectMessage : MessageToServerType {
 data class PlayerJumpMessage(
     private val player: Int,
 ) : MessageToServerType {
-    override val endpoint = "jump"
+    override val endpoint = Endpoints.PLAYER_JUMP
 
     override suspend fun send(session: DefaultClientWebSocketSession) {
         session.send(Frame.Text(player.toString()))
