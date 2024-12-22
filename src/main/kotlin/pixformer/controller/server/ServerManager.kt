@@ -9,6 +9,7 @@ import pixformer.serialization.SerializableLevelData
  */
 interface ServerManager {
     val players: Map<Int, Player>
+    var playablePlayerIndex: Int?
 
     val port: Int
 

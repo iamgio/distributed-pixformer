@@ -17,12 +17,17 @@ class Realigner(
     companion object {
         fun alignableEntities(world: World) =
             world.entities
+                .toSet()
                 .asSequence()
                 .filterIsInstance<MutableEntity>()
                 .filter { it !is Block }
                 .filter { it !is Player }
 
-        fun alignablePlayers(world: World) = world.entities.asSequence().filterIsInstance<Player>()
+        fun alignablePlayers(world: World) =
+            world.entities
+                .toSet()
+                .asSequence()
+                .filterIsInstance<Player>()
     }
 
     private fun realignEntity(
@@ -51,7 +56,9 @@ class Realigner(
         val players: Map<Int, Player> = alignablePlayers(world).map { it.index to it }.toMap()
 
         for ((index, entityData) in data.players) {
-            val player = players[index] ?: level.createPlayer(index, false)
+            // The player may not exist yet.
+            // If it doesn't, create it. If the assigned player index is the same as the current index, the character is playable.
+            val player = players[index] ?: level.createPlayer(index, index == manager.playablePlayerIndex)
             realignEntity(entityData, player)
         }
     }

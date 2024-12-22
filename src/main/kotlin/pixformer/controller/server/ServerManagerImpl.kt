@@ -25,6 +25,7 @@ class ServerManagerImpl : ServerManager {
     override val port: Int = PORT
 
     override val players = mutableMapOf<Int, Player>()
+    override var playablePlayerIndex: Int? = null
 
     override var onPlayerConnect: (Int) -> Unit = {}
     override var onRealign: (SerializableLevelData) -> Unit = {}
@@ -36,7 +37,7 @@ class ServerManagerImpl : ServerManager {
 
     override fun connectToServer() {
         // client = Client(port = port).also { it.connect() }
-        MessageToServer(PlayerConnectMessage).send(port = port)
+        MessageToServer(PlayerConnectMessage).send(this)
     }
 
     override fun connectOrStart() {

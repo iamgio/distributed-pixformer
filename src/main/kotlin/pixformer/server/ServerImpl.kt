@@ -79,6 +79,14 @@ fun Application.ApplicationModule(manager: ServerManager) {
                 "connect" -> {
                     log.info("Connect requested")
 
+                    val playerIndex =
+                        manager.players.keys
+                            .maxOrNull()
+                            ?.plus(1) ?: 0
+
+                    send(Frame.Text("$playerIndex"))
+                    manager.onPlayerConnect(playerIndex)
+
                     runCatching {
                         incoming.consumeEach { frame ->
                             if (frame is Frame.Text) {
@@ -89,12 +97,6 @@ fun Application.ApplicationModule(manager: ServerManager) {
                     }.onFailure { exception ->
                         log.error("WebSocket error: ${exception.message}")
                     }
-
-                    manager.onPlayerConnect(
-                        manager.players.keys
-                            .maxOrNull()
-                            ?.plus(1) ?: 0,
-                    )
                 }
             }
         }

@@ -2,6 +2,8 @@ package pixformer.server
 
 import io.ktor.client.plugins.websocket.DefaultClientWebSocketSession
 import io.ktor.websocket.Frame
+import io.ktor.websocket.readText
+import pixformer.controller.server.ServerManager
 
 /**
  * A type of message sent a client to the server as a WebSocket.
@@ -17,7 +19,10 @@ sealed interface MessageToServerType {
      * Sends the message to a WebSocket server.
      * @param session WebSocket session
      */
-    suspend fun send(session: DefaultClientWebSocketSession)
+    suspend fun send(
+        manager: ServerManager,
+        session: DefaultClientWebSocketSession,
+    )
 }
 
 /**
@@ -26,8 +31,19 @@ sealed interface MessageToServerType {
 data object PlayerConnectMessage : MessageToServerType {
     override val name = EventType.PLAYER_CONNECT
 
-    override suspend fun send(session: DefaultClientWebSocketSession) {
+    override suspend fun send(
+        manager: ServerManager,
+        session: DefaultClientWebSocketSession,
+    ) {
         session.send(Frame.Text("hello"))
+
+        session.incoming.receive().let { frame ->
+            if (frame is Frame.Text) {
+                val playerIndex = frame.readText().toInt()
+                manager.playablePlayerIndex = playerIndex
+                println("You were assigned player index $playerIndex")
+            }
+        }
     }
 }
 
@@ -40,7 +56,10 @@ data class PlayerJumpMessage(
 ) : MessageToServerType {
     override val name = EventType.PLAYER_JUMP
 
-    override suspend fun send(session: DefaultClientWebSocketSession) {
+    override suspend fun send(
+        manager: ServerManager,
+        session: DefaultClientWebSocketSession,
+    ) {
         session.send(Frame.Text(player.toString()))
     }
 }

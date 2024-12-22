@@ -10,6 +10,7 @@ import io.ktor.client.plugins.websocket.webSocket
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import pixformer.controller.server.ServerManager
 
 /**
  * A message sent from the client to the server as a WebSocket.
@@ -19,24 +20,21 @@ data class MessageToServer(
 ) {
     /**
      * Asynchronously sends the message to a WebSocket server.
-     * @param host host of the server
-     * @param port port of the server
+     * @param manager server manager
      */
-    fun send(
-        host: String = "localhost",
-        port: Int,
-    ) = runBlocking {
-        launch(Dispatchers.IO) {
-            val client =
-                HttpClient(CIO) {
-                    install(WebSockets)
+    fun send(manager: ServerManager) =
+        runBlocking {
+            launch(Dispatchers.IO) {
+                val client =
+                    HttpClient(CIO) {
+                        install(WebSockets)
+                    }
+
+                client.webSocket("ws://localhost:${manager.port}/ws?type=${type.name}") {
+                    type.send(manager, this)
                 }
 
-            client.webSocket("ws://$host:$port/ws?type=${type.name}") {
-                type.send(this)
+                client.close()
             }
-
-            client.close()
         }
-    }
 }
