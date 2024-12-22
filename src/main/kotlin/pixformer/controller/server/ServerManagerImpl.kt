@@ -16,6 +16,8 @@ import kotlin.concurrent.thread
 // todo temporary. allow custom port
 const val PORT = 8082
 
+private const val ALIGNMENT_INTERVAL = 1500
+
 @Suppress("DeferredResultUnused")
 @OptIn(DelicateCoroutinesApi::class)
 class ServerManagerImpl : ServerManager {
@@ -55,14 +57,18 @@ class ServerManagerImpl : ServerManager {
     private fun setupAlignmentRoutine() {
         // each 5 seconds, send a request to /align
         while (true) {
-            println("REALIGNING")
+            println("Aligning with server")
 
             try {
                 RealignRequest().send(port = PORT, manager = this)
             } catch (ignored: IOException) {
             }
 
-            Thread.sleep(5000)
+            try {
+                Thread.sleep(ALIGNMENT_INTERVAL.toLong())
+            } catch (e: InterruptedException) {
+                break
+            }
         }
     }
 
