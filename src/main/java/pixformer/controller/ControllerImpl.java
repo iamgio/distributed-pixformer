@@ -8,6 +8,9 @@ import pixformer.controller.gameloop.GameLoop;
 import pixformer.controller.gameloop.GameLoopFactory;
 import pixformer.controller.level.LevelManager;
 import pixformer.controller.level.LevelManagerImpl;
+import pixformer.controller.server.ServerManager;
+import pixformer.controller.server.ServerManagerImpl;
+import pixformer.controller.server.ServerManagerImplKt;
 import pixformer.model.Level;
 import pixformer.model.World;
 import pixformer.model.WorldAcceptingLevel;
@@ -38,6 +41,7 @@ public final class ControllerImpl implements Controller {
     private static final int MAX_PLAYERS_AMOUNT = 4;
 
     private final Wrapper<LevelManager> levelManager;
+    private final Wrapper<ServerManager> serverManager;
     private final Wrapper<GameLoopManager> gameLoopManager;
     private final GraphicsComponentFactory graphicsComponentFactory;
 
@@ -46,9 +50,12 @@ public final class ControllerImpl implements Controller {
      * @param gameLoopManager game loop handler
      * @param graphicsComponentFactory factory of graphics components
      */
-    public ControllerImpl(final LevelManager levelManager, final GameLoopManager gameLoopManager,
+    public ControllerImpl(final LevelManager levelManager,
+                          final ServerManager serverManager,
+                          final GameLoopManager gameLoopManager,
                           final GraphicsComponentFactory graphicsComponentFactory) {
         this.levelManager = new SimpleWrapper<>(levelManager);
+        this.serverManager = new SimpleWrapper<>(serverManager);
         this.gameLoopManager = new SimpleWrapper<>(gameLoopManager);
         this.graphicsComponentFactory = graphicsComponentFactory;
     }
@@ -59,7 +66,7 @@ public final class ControllerImpl implements Controller {
      * @param graphicsComponentFactory factory of graphics components
      */
     public ControllerImpl(final GameLoopManager gameLoopManager, final GraphicsComponentFactory graphicsComponentFactory) {
-        this(new LevelManagerImpl(), gameLoopManager, graphicsComponentFactory);
+        this(new LevelManagerImpl(), new ServerManagerImpl(), gameLoopManager, graphicsComponentFactory);
     }
 
     /**
@@ -77,6 +84,7 @@ public final class ControllerImpl implements Controller {
 
     private void setupLevelChangeActions() {
         getLevelManager().addOnLevelStart((level, playersAmount) -> {
+            this.getServerManager().connectOrStart(ServerManagerImplKt.PORT); // Distributed patch!
             level.init(playersAmount);
             this.getGameLoopManager().start();
         });
@@ -89,6 +97,14 @@ public final class ControllerImpl implements Controller {
     @Override
     public LevelManager getLevelManager() {
         return this.levelManager.get();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ServerManager getServerManager() {
+        return this.serverManager.get();
     }
 
     /**

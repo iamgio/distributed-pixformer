@@ -2,6 +2,7 @@ package pixformer.controller;
 
 import pixformer.controller.gameloop.GameLoop;
 import pixformer.controller.level.LevelManager;
+import pixformer.controller.server.ServerManager;
 import pixformer.model.Level;
 import pixformer.model.entity.Entity;
 import pixformer.view.View;
@@ -24,6 +25,11 @@ public interface Controller {
      * @return the handler for playable levels
      */
     LevelManager getLevelManager();
+
+    /**
+     * @return the handler for client-server operations
+     */
+    ServerManager getServerManager();
 
     /**
      * @return the handler for game loop cycles
