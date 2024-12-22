@@ -4,6 +4,7 @@ import pixformer.controller.input.ModelInputAdapter;
 import pixformer.model.entity.AbstractEntity;
 import pixformer.model.entity.Entity;
 import pixformer.model.entity.EntityFactory;
+import pixformer.model.entity.statics.Block;
 import pixformer.model.modelinput.CompleteModelInput;
 import pixformer.serialization.SerializableEntityData;
 import pixformer.serialization.SerializableLevelData;
@@ -144,17 +145,16 @@ public class LevelImpl implements Level {
     public void realign(final SerializableLevelData data) {
         final World world = this.getWorld();
         // Map entities by id.
-        Map<Integer, Entity> entities = world.getEntities().stream().collect(Collectors.toMap(Entity::getId, Function.identity()));
-
-        System.out.println("aaa" + entities);
-        System.out.println("bbb" + data.getEntities());
+        Map<Integer, Entity> entities = world.getEntities().stream()
+                .filter(e -> e instanceof AbstractEntity)
+                .filter(e -> !(e instanceof Block))
+                .collect(Collectors.toMap(Entity::getId, Function.identity()));
 
         for (SerializableEntityData serializable : data.getEntities()) {
-            final Entity entity = entities.get(serializable.getId());
-            if (!(entity instanceof AbstractEntity mutable)) continue;
+            final AbstractEntity entity = (AbstractEntity) entities.get(serializable.getId());
 
-            mutable.setX(serializable.getX());
-            mutable.setY(serializable.getY());
+            entity.setX(serializable.getX());
+            entity.setY(serializable.getY());
         }
     }
 }
