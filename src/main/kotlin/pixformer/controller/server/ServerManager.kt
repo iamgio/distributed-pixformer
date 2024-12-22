@@ -21,4 +21,6 @@ interface ServerManager {
     fun connectToServer()
 
     fun connectOrStart()
+
+    fun disconnect()
 }

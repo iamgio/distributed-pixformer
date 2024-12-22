@@ -1,5 +1,6 @@
 package pixformer.serialization
 
+import kotlinx.serialization.SerializationException
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import pixformer.model.Level
@@ -33,5 +34,10 @@ object LevelSerialization {
         return Json.encodeToString(levelData)
     }
 
-    fun deserialize(json: String): SerializableLevelData = Json.decodeFromString(json)
+    fun deserialize(json: String): SerializableLevelData? =
+        try {
+            Json.decodeFromString(json)
+        } catch (e: SerializationException) {
+            null
+        }
 }

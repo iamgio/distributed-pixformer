@@ -4,6 +4,7 @@ import io.ktor.server.application.Application
 import io.ktor.server.application.ApplicationStarted
 import io.ktor.server.application.install
 import io.ktor.server.application.log
+import io.ktor.server.engine.EmbeddedServer
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import io.ktor.server.response.respondText
@@ -32,12 +33,14 @@ import kotlin.time.Duration.Companion.seconds
 class ServerImpl(
     private val manager: ServerManager,
 ) : Server {
+    private lateinit var server: EmbeddedServer<*, *>
+
     override fun start(port: Int) {
-        embeddedServer(Netty, port, module = { ApplicationModule(manager) }).start(wait = true)
+        server = embeddedServer(Netty, port, module = { ApplicationModule(manager) }).start(wait = true)
     }
 
     override fun stop() {
-        println("Server stopped")
+        server.stop(1000, 1000)
     }
 }
 

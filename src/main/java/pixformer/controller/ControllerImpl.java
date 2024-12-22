@@ -90,7 +90,11 @@ public final class ControllerImpl implements Controller {
             level.init();
             this.getGameLoopManager().start();
         });
-        getLevelManager().addOnLevelEnd((level, leaderboard) -> this.getGameLoopManager().stop());
+
+        getLevelManager().addOnLevelEnd((level, leaderboard) -> {
+            this.getGameLoopManager().stop();
+            this.getServerManager().disconnect();
+        });
     }
 
     private void setupServerConnectionActions() {

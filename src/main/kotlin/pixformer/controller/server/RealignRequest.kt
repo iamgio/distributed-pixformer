@@ -31,8 +31,7 @@ class RealignRequest {
 
             client.close()
 
-            val data = LevelSerialization.deserialize(response.bodyAsText())
-            manager.onRealign(data)
+            LevelSerialization.deserialize(response.bodyAsText())?.let { manager.onRealign(it) }
         }
     }
 }

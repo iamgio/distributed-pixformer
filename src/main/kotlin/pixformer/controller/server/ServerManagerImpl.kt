@@ -20,6 +20,7 @@ const val PORT = 8082
 @OptIn(DelicateCoroutinesApi::class)
 class ServerManagerImpl : ServerManager {
     private var server: Server? = null
+    private var alignmentThread: Thread? = null
 
     override val port: Int = PORT
 
@@ -47,7 +48,7 @@ class ServerManagerImpl : ServerManager {
             }
         }
 
-        thread(start = true) { setupAlignmentRoutine() }
+        alignmentThread = thread(start = true) { setupAlignmentRoutine() }
     }
 
     private fun setupAlignmentRoutine() {
@@ -62,5 +63,11 @@ class ServerManagerImpl : ServerManager {
 
             Thread.sleep(5000)
         }
+    }
+
+    override fun disconnect() {
+        println("Disconnecting from server")
+        server?.stop()
+        alignmentThread?.interrupt()
     }
 }
