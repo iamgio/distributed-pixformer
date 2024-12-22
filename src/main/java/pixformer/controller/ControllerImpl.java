@@ -104,7 +104,7 @@ public final class ControllerImpl implements Controller {
             System.out.println("Player connected: " + index);
 
             this.getLevelManager().getCurrentLevel().ifPresent(level -> {
-                Player player = level.createPlayer();
+                Player player = level.createPlayer(true);
                 this.getServerManager().getPlayers().put(index, player);
             });
             return Unit.INSTANCE;

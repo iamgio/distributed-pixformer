@@ -47,7 +47,7 @@ public interface Level {
      */
     void init();
 
-    Player createPlayer();
+    Player createPlayer(boolean playable);
 
     void realign(SerializableLevelData data);
 }

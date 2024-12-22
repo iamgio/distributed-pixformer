@@ -33,6 +33,7 @@ public class LevelImpl implements Level {
     private final LevelData data;
     private final World world;
 
+    // Keyboard-controlled players.
     private final List<CompleteModelInput> players;
 
     /**
@@ -121,14 +122,16 @@ public class LevelImpl implements Level {
     }
 
     @Override
-    public Player createPlayer() {
+    public Player createPlayer(boolean playable) {
         final Entity player = this.createPlayer(players.size(), data.spawnPointX(), data.spawnPointY(), data.entityFactory());
         this.world.spawnEntity(player);
 
-        player.getInputComponent().ifPresent(inputComponent -> {
-            final CompleteModelInput input = ModelInputAdapter.from(inputComponent);
-            this.players.add(input);
-        });
+        if (playable) {
+            player.getInputComponent().ifPresent(inputComponent -> {
+                final CompleteModelInput input = ModelInputAdapter.from(inputComponent);
+                this.players.add(input);
+            });
+        }
 
         return (Player) player;
     }
