@@ -19,7 +19,9 @@ object LevelSerialization {
                 .map { SerializableEntityData.from(it) }
                 .toList()
 
-        return Json.encodeToString(entities)
+        val levelData = SerializableLevelData(entities)
+
+        return Json.encodeToString(levelData)
     }
 
     fun deserialize(json: String): SerializableLevelData = Json.decodeFromString(json)

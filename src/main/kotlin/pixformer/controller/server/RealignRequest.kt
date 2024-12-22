@@ -7,6 +7,7 @@ import io.ktor.client.statement.bodyAsText
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import pixformer.serialization.LevelSerialization
 import pixformer.server.Endpoints
 
 /**
@@ -21,14 +22,17 @@ class RealignRequest {
     fun send(
         host: String = "localhost",
         port: Int,
+        manager: ServerManager,
     ) = runBlocking {
         launch(Dispatchers.IO) {
             val client = HttpClient(CIO)
 
             val response = client.get("http://$host:$port/${Endpoints.REALIGN}")
-            println(response.bodyAsText())
 
             client.close()
+
+            val data = LevelSerialization.deserialize(response.bodyAsText())
+            manager.onRealign(data)
         }
     }
 }

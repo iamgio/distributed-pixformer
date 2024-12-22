@@ -106,6 +106,13 @@ public final class ControllerImpl implements Controller {
             });
             return Unit.INSTANCE;
         });
+
+        this.getServerManager().setOnRealign(data -> {
+            this.getLevelManager().getCurrentLevel().ifPresent(level -> {
+                level.realign(data);
+            });
+            return Unit.INSTANCE;
+        });
     }
 
     /**

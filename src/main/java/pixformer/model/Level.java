@@ -1,6 +1,7 @@
 package pixformer.model;
 
 import pixformer.model.modelinput.CompleteModelInput;
+import pixformer.serialization.SerializableLevelData;
 
 import java.util.Optional;
 
@@ -46,4 +47,6 @@ public interface Level {
     void init();
 
     CompleteModelInput createPlayer();
+
+    void realign(SerializableLevelData data);
 }

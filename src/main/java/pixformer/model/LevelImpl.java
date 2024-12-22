@@ -1,13 +1,19 @@
 package pixformer.model;
 
 import pixformer.controller.input.ModelInputAdapter;
+import pixformer.model.entity.AbstractEntity;
 import pixformer.model.entity.Entity;
 import pixformer.model.entity.EntityFactory;
 import pixformer.model.modelinput.CompleteModelInput;
+import pixformer.serialization.SerializableEntityData;
+import pixformer.serialization.SerializableLevelData;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * Implementation of a game {@link Level}.
@@ -132,5 +138,23 @@ public class LevelImpl implements Level {
      */
     private Entity createPlayer(final int playerIndex, final double x, final double y, final EntityFactory entityFactory) {
          return entityFactory.createMainCharacter(x, y, playerIndex);
+    }
+
+    @Override
+    public void realign(final SerializableLevelData data) {
+        final World world = this.getWorld();
+        // Map entities by id.
+        Map<Integer, Entity> entities = world.getEntities().stream().collect(Collectors.toMap(Entity::getId, Function.identity()));
+
+        System.out.println("aaa" + entities);
+        System.out.println("bbb" + data.getEntities());
+
+        for (SerializableEntityData serializable : data.getEntities()) {
+            final Entity entity = entities.get(serializable.getId());
+            if (!(entity instanceof AbstractEntity mutable)) continue;
+
+            mutable.setX(serializable.getX());
+            mutable.setY(serializable.getY());
+        }
     }
 }
