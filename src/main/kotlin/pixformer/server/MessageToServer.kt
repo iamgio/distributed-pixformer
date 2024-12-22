@@ -14,7 +14,9 @@ import kotlinx.coroutines.runBlocking
 /**
  * A message sent from the client to the server as a WebSocket.
  */
-data class MessageToServer(val type: MessageToServerType) {
+data class MessageToServer(
+    val type: MessageToServerType,
+) {
     /**
      * Asynchronously sends the message to a WebSocket server.
      * @param host host of the server
@@ -30,7 +32,7 @@ data class MessageToServer(val type: MessageToServerType) {
                     install(WebSockets)
                 }
 
-            client.webSocket("ws://$host:$port/${type.endpoint}") {
+            client.webSocket("ws://$host:$port/ws?type=${type.name}") {
                 type.send(this)
             }
 

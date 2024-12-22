@@ -118,20 +118,19 @@ public class LevelImpl implements Level {
     @Override
     public void init() {
         this.data.entities().forEach(this.world::spawnEntity);
-
-        createPlayer();
     }
 
     @Override
-    public CompleteModelInput createPlayer() {
+    public Player createPlayer() {
         final Entity player = this.createPlayer(players.size(), data.spawnPointX(), data.spawnPointY(), data.entityFactory());
         this.world.spawnEntity(player);
 
-        return player.getInputComponent().map(inputComponent -> {
+        player.getInputComponent().ifPresent(inputComponent -> {
             final CompleteModelInput input = ModelInputAdapter.from(inputComponent);
             this.players.add(input);
-            return input;
-        }).orElseThrow(() -> new IllegalStateException("Player entity must have an input component."));
+        });
+
+        return (Player) player;
     }
 
     /**

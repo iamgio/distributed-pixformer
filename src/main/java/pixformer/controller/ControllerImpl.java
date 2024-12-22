@@ -11,7 +11,6 @@ import pixformer.controller.level.LevelManager;
 import pixformer.controller.level.LevelManagerImpl;
 import pixformer.controller.server.ServerManager;
 import pixformer.controller.server.ServerManagerImpl;
-import pixformer.controller.server.ServerManagerImplKt;
 import pixformer.model.Level;
 import pixformer.model.World;
 import pixformer.model.WorldAcceptingLevel;
@@ -20,7 +19,7 @@ import pixformer.model.WorldOptionsFactory;
 import pixformer.model.entity.Entity;
 import pixformer.model.entity.EntityFactoryImpl;
 import pixformer.model.entity.GraphicsComponentFactory;
-import pixformer.model.modelinput.CompleteModelInput;
+import pixformer.model.entity.dynamic.player.Player;
 import pixformer.view.View;
 
 import java.io.File;
@@ -87,7 +86,7 @@ public final class ControllerImpl implements Controller {
 
     private void setupLevelChangeActions() {
         getLevelManager().addOnLevelStart((level, playersAmount) -> {
-            this.getServerManager().connectOrStart(ServerManagerImplKt.PORT); // Distributed patch!
+            this.getServerManager().connectOrStart(); // Distributed patch!
             level.init();
             this.getGameLoopManager().start();
         });
@@ -97,12 +96,12 @@ public final class ControllerImpl implements Controller {
     private void setupServerConnectionActions() {
         this.getServerManager().setLevelSupplier(() -> this.getLevelManager().getCurrentLevel().orElse(null));
 
-        this.getServerManager().setOnPlayerConnect(uuid -> {
-            System.out.println("Player connected: " + uuid);
+        this.getServerManager().setOnPlayerConnect(index -> {
+            System.out.println("Player connected: " + index);
 
             this.getLevelManager().getCurrentLevel().ifPresent(level -> {
-                CompleteModelInput player = level.createPlayer();
-                this.getServerManager().getPlayers().put(uuid, player);
+                Player player = level.createPlayer();
+                this.getServerManager().getPlayers().put(index, player);
             });
             return Unit.INSTANCE;
         });

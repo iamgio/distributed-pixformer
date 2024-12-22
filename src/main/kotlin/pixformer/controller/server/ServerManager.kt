@@ -1,23 +1,24 @@
 package pixformer.controller.server
 
 import pixformer.model.Level
-import pixformer.model.modelinput.CompleteModelInput
+import pixformer.model.entity.dynamic.player.Player
 import pixformer.serialization.SerializableLevelData
-import java.util.UUID
 
 /**
  * A bridge between controller and server to enable client-server communication.
  */
 interface ServerManager {
-    val players: Map<UUID, CompleteModelInput>
+    val players: Map<Int, Player>
 
-    var onPlayerConnect: (UUID) -> Unit
+    val port: Int
+
+    var onPlayerConnect: (Int) -> Unit
     var onRealign: (SerializableLevelData) -> Unit
     var levelSupplier: () -> Level?
 
-    fun startServer(port: Int)
+    fun startServer()
 
-    fun connectToServer(port: Int)
+    fun connectToServer()
 
-    fun connectOrStart(port: Int)
+    fun connectOrStart()
 }

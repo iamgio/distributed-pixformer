@@ -9,9 +9,9 @@ import io.ktor.websocket.Frame
  */
 sealed interface MessageToServerType {
     /**
-     * URL endpoint that the message should be sent to.
+     * Value for the `type` query parameter.
      */
-    val endpoint: String
+    val name: String
 
     /**
      * Sends the message to a WebSocket server.
@@ -24,10 +24,10 @@ sealed interface MessageToServerType {
  *
  */
 data object PlayerConnectMessage : MessageToServerType {
-    override val endpoint = Endpoints.PLAYER_CONNECT
+    override val name = EventType.PLAYER_CONNECT
 
     override suspend fun send(session: DefaultClientWebSocketSession) {
-        session.send(Frame.Text(""))
+        session.send(Frame.Text("hello"))
     }
 }
 
@@ -38,7 +38,7 @@ data object PlayerConnectMessage : MessageToServerType {
 data class PlayerJumpMessage(
     private val player: Int,
 ) : MessageToServerType {
-    override val endpoint = Endpoints.PLAYER_JUMP
+    override val name = EventType.PLAYER_JUMP
 
     override suspend fun send(session: DefaultClientWebSocketSession) {
         session.send(Frame.Text(player.toString()))

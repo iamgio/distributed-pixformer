@@ -5,13 +5,12 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.io.IOException
 import pixformer.model.Level
-import pixformer.model.modelinput.CompleteModelInput
+import pixformer.model.entity.dynamic.player.Player
 import pixformer.serialization.SerializableLevelData
 import pixformer.server.MessageToServer
 import pixformer.server.PlayerConnectMessage
 import pixformer.server.Server
 import pixformer.server.ServerImpl
-import java.util.UUID
 import kotlin.concurrent.thread
 
 // todo temporary. allow custom port
@@ -22,28 +21,29 @@ const val PORT = 8082
 class ServerManagerImpl : ServerManager {
     private var server: Server? = null
 
-    override val players = mutableMapOf<UUID, CompleteModelInput>()
+    override val port: Int = PORT
 
-    override var onPlayerConnect: (UUID) -> Unit = {}
+    override val players = mutableMapOf<Int, Player>()
+
+    override var onPlayerConnect: (Int) -> Unit = {}
     override var onRealign: (SerializableLevelData) -> Unit = {}
     override lateinit var levelSupplier: () -> Level?
 
-    override fun startServer(port: Int) {
+    override fun startServer() {
         server = ServerImpl(this).also { it.start(port) }
     }
 
-    override fun connectToServer(port: Int) {
-        val uuid = UUID.randomUUID()
+    override fun connectToServer() {
+        // client = Client(port = port).also { it.connect() }
         MessageToServer(PlayerConnectMessage).send(port = port)
     }
 
-    override fun connectOrStart(port: Int) {
+    override fun connectOrStart() {
         GlobalScope.async {
             try {
-                connectToServer(port)
+                connectToServer()
             } catch (e: IOException) {
-                startServer(port)
-                connectToServer(port)
+                startServer()
             }
         }
 

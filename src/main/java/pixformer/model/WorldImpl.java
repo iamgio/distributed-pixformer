@@ -112,6 +112,11 @@ public class WorldImpl implements World {
 
         this.entities.add(entity);
         entity.onSpawn(this);
+
+        // Clear the lazy cache if a player joins.
+        if (entity instanceof Player) {
+            this.lazyUserControlledEntity = null;
+        }
     }
 
     /**

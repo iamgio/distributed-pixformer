@@ -1,5 +1,6 @@
 package pixformer.model;
 
+import pixformer.model.entity.dynamic.player.Player;
 import pixformer.model.modelinput.CompleteModelInput;
 import pixformer.serialization.SerializableLevelData;
 
@@ -46,7 +47,7 @@ public interface Level {
      */
     void init();
 
-    CompleteModelInput createPlayer();
+    Player createPlayer();
 
     void realign(SerializableLevelData data);
 }
