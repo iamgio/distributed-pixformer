@@ -1,5 +1,6 @@
 package pixformer.controller.server
 
+import pixformer.common.Vector2D
 import pixformer.model.Level
 import pixformer.model.World
 import pixformer.model.entity.MutableEntity
@@ -36,6 +37,7 @@ class Realigner(
     ) {
         entity.x = serializable.x
         entity.y = serializable.y
+        entity.velocity = Vector2D(serializable.velocityX, serializable.velocityY)
     }
 
     fun realign(
