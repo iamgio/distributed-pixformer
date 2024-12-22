@@ -4,6 +4,7 @@ import pixformer.model.entity.dynamic.player.Player;
 import pixformer.model.modelinput.CompleteModelInput;
 
 import java.util.Optional;
+import java.util.function.Function;
 
 /**
  * A playable level.
@@ -46,5 +47,5 @@ public interface Level {
      */
     void init();
 
-    Player createPlayer(int index, boolean playable);
+    Player createPlayer(int index, boolean playable, Function<CompleteModelInput, CompleteModelInput> modelInputMapper);
 }

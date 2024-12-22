@@ -57,8 +57,10 @@ class Realigner(
 
         for ((index, entityData) in data.players) {
             // The player may not exist yet.
-            // If it doesn't, create it. If the assigned player index is the same as the current index, the character is playable.
-            val player = players[index] ?: level.createPlayer(index, index == manager.playablePlayerIndex)
+            // If it doesn't, create it. If the assigned player index is the same as the current index, the character is playable,
+            // and the decorator allows sending messages to the server when an event occurs.
+            val playable = index == manager.playablePlayerIndex
+            val player = players[index] ?: level.createPlayer(index, playable) { ServerEventCompleteModelInputDecorator(it, manager) }
             realignEntity(entityData, player)
         }
     }

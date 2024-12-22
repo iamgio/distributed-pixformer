@@ -9,6 +9,7 @@ import pixformer.model.modelinput.CompleteModelInput;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 
 /**
  * Implementation of a game {@link Level}.
@@ -112,14 +113,14 @@ public class LevelImpl implements Level {
     }
 
     @Override
-    public Player createPlayer(int index, boolean playable) {
+    public Player createPlayer(int index, boolean playable, Function<CompleteModelInput, CompleteModelInput> modelInputMapper) {
         final Entity player = this.createPlayer(index, data.spawnPointX(), data.spawnPointY(), data.entityFactory());
         this.world.spawnEntity(player);
 
         if (playable) {
             player.getInputComponent().ifPresent(inputComponent -> {
                 final CompleteModelInput input = ModelInputAdapter.from(inputComponent);
-                this.players.add(input);
+                this.players.add(modelInputMapper.apply(input));
             });
         }
 

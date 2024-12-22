@@ -49,17 +49,14 @@ data object PlayerConnectMessage : MessageToServerType {
 
 /**
  * A message sent from the client to the server to let the player jump.
- * @param player player ID
  */
-data class PlayerJumpMessage(
-    private val player: Int,
-) : MessageToServerType {
+data object PlayerJumpMessage : MessageToServerType {
     override val name = EventType.PLAYER_JUMP
 
     override suspend fun send(
         manager: ServerManager,
         session: DefaultClientWebSocketSession,
     ) {
-        session.send(Frame.Text(player.toString()))
+        session.send(Frame.Text(""))
     }
 }

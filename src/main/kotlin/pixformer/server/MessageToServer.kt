@@ -30,7 +30,7 @@ data class MessageToServer(
                         install(WebSockets)
                     }
 
-                client.webSocket("ws://localhost:${manager.port}/ws?type=${type.name}") {
+                client.webSocket("ws://localhost:${manager.port}/ws?type=${type.name}&player=${manager.playablePlayerIndex}") {
                     type.send(manager, this)
                 }
 

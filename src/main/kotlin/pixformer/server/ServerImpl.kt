@@ -24,7 +24,9 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import pixformer.controller.server.ServerManager
+import pixformer.model.modelinput.JumpModelInput
 import pixformer.serialization.LevelSerialization
+import kotlin.jvm.optionals.getOrNull
 import kotlin.time.Duration.Companion.seconds
 
 /**
@@ -76,7 +78,7 @@ fun Application.ApplicationModule(manager: ServerManager) {
     routing {
         webSocket("/${Endpoints.WEBSOCKETS}") {
             when (call.request.queryParameters["type"]) {
-                "connect" -> {
+                EventType.PLAYER_CONNECT -> {
                     log.info("Connect requested")
 
                     val playerIndex =
@@ -98,6 +100,14 @@ fun Application.ApplicationModule(manager: ServerManager) {
                         log.error("WebSocket error: ${exception.message}")
                     }
                 }
+
+                EventType.PLAYER_JUMP -> {
+                    call.request.queryParameters["player"]?.toIntOrNull()?.let { playerIndex ->
+                        println("Player $playerIndex jumped")
+                        val player = manager.players[playerIndex] ?: return@webSocket
+                        (player.inputComponent.getOrNull() as? JumpModelInput)?.jump()
+                    }
+                }
             }
         }
 
@@ -109,3 +119,5 @@ fun Application.ApplicationModule(manager: ServerManager) {
         }
     }
 }
+
+private suspend fun DefaultWebSocketServerSession.receiveText(): String = (incoming.receive() as Frame.Text).readText()
