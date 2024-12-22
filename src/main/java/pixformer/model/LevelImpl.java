@@ -4,10 +4,13 @@ import pixformer.controller.input.ModelInputAdapter;
 import pixformer.model.entity.AbstractEntity;
 import pixformer.model.entity.Entity;
 import pixformer.model.entity.EntityFactory;
+import pixformer.model.entity.MutableEntity;
+import pixformer.model.entity.dynamic.player.Player;
 import pixformer.model.entity.statics.Block;
 import pixformer.model.modelinput.CompleteModelInput;
 import pixformer.serialization.SerializableEntityData;
 import pixformer.serialization.SerializableLevelData;
+import pixformer.serialization.SerializablePlayerData;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,6 +18,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Implementation of a game {@link Level}.
@@ -141,20 +145,43 @@ public class LevelImpl implements Level {
          return entityFactory.createMainCharacter(x, y, playerIndex);
     }
 
+    public static Stream<Entity> alignableEntities(final World world) {
+        return world.getEntities().stream()
+                .filter(e -> e instanceof MutableEntity)
+                .filter(e -> !(e instanceof Block))
+                .filter(e -> !(e instanceof Player));
+    }
+
+    public static Stream<Entity> alignablePlayers(final World world) {
+        return world.getEntities().stream()
+                .filter(e -> e instanceof Player);
+    }
+
+    private void realignEntity(final SerializableEntityData serializable, final MutableEntity entity) {
+        if (entity == null) return;
+        entity.setX(serializable.getX());
+        entity.setY(serializable.getY());
+    }
+
     @Override
     public void realign(final SerializableLevelData data) {
         final World world = this.getWorld();
+
         // Map entities by id.
-        Map<Integer, Entity> entities = world.getEntities().stream()
-                .filter(e -> e instanceof AbstractEntity)
-                .filter(e -> !(e instanceof Block))
+        Map<Integer, Entity> entities = alignableEntities(world)
                 .collect(Collectors.toMap(Entity::getId, Function.identity()));
 
         for (SerializableEntityData serializable : data.getEntities()) {
             final AbstractEntity entity = (AbstractEntity) entities.get(serializable.getId());
+            realignEntity(serializable, entity);
+        }
 
-            entity.setX(serializable.getX());
-            entity.setY(serializable.getY());
+        Map<Integer, Player> players = alignablePlayers(world)
+                .collect(Collectors.toMap(e -> ((Player) e).getIndex(), e -> (Player) e));
+
+        for (SerializablePlayerData serializable : data.getPlayers()) {
+            final Player player = players.get(serializable.getIndex());
+            realignEntity(serializable.getEntityData(), player);
         }
     }
 }

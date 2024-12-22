@@ -3,7 +3,9 @@ package pixformer.serialization
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import pixformer.model.Level
-import pixformer.model.entity.statics.Block
+import pixformer.model.LevelImpl
+import pixformer.model.entity.dynamic.player.Player
+import kotlin.streams.asSequence
 
 /**
  * A utility class to serialize and deserialize level information on-the-fly to allow reconciliation between server and client.
@@ -13,13 +15,20 @@ object LevelSerialization {
         val world = level.world
 
         val entities =
-            world.entities
+            LevelImpl
+                .alignableEntities(world)
                 .asSequence()
-                .filter { it !is Block }
                 .map { SerializableEntityData.from(it) }
                 .toList()
 
-        val levelData = SerializableLevelData(entities)
+        val players =
+            LevelImpl
+                .alignablePlayers(world)
+                .asSequence()
+                .map { SerializablePlayerData((it as Player).index, SerializableEntityData.from(it)) }
+                .toList()
+
+        val levelData = SerializableLevelData(entities, players)
 
         return Json.encodeToString(levelData)
     }

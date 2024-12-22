@@ -8,4 +8,5 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class SerializableLevelData(
     val entities: List<SerializableEntityData>,
+    val players: List<SerializablePlayerData>,
 )
