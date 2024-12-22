@@ -48,6 +48,34 @@ data object PlayerConnectMessage : MessageToServerType {
 }
 
 /**
+ * A message sent from the client to the server to let the player moves right.
+ */
+data object PlayerMoveRightMessage : MessageToServerType {
+    override val name = EventType.PLAYER_MOVE_RIGHT
+
+    override suspend fun send(
+        manager: ServerManager,
+        session: DefaultClientWebSocketSession,
+    ) {
+        session.send(Frame.Text(""))
+    }
+}
+
+/**
+ * A message sent from the client to the server to let the player moves right.
+ */
+data object PlayerMoveLeftMessage : MessageToServerType {
+    override val name = EventType.PLAYER_MOVE_LEFT
+
+    override suspend fun send(
+        manager: ServerManager,
+        session: DefaultClientWebSocketSession,
+    ) {
+        session.send(Frame.Text(""))
+    }
+}
+
+/**
  * A message sent from the client to the server to let the player jump.
  */
 data object PlayerJumpMessage : MessageToServerType {

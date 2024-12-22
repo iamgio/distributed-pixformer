@@ -24,7 +24,9 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import pixformer.controller.server.ServerManager
+import pixformer.model.modelinput.HorizontalModelInput
 import pixformer.model.modelinput.JumpModelInput
+import pixformer.model.modelinput.ModelInput
 import pixformer.serialization.LevelSerialization
 import kotlin.jvm.optionals.getOrNull
 import kotlin.time.Duration.Companion.seconds
@@ -101,13 +103,9 @@ fun Application.ApplicationModule(manager: ServerManager) {
                     }
                 }
 
-                EventType.PLAYER_JUMP -> {
-                    call.request.queryParameters["player"]?.toIntOrNull()?.let { playerIndex ->
-                        println("Player $playerIndex jumped")
-                        val player = manager.players[playerIndex] ?: return@webSocket
-                        (player.inputComponent.getOrNull() as? JumpModelInput)?.jump()
-                    }
-                }
+                EventType.PLAYER_MOVE_RIGHT -> input<HorizontalModelInput>(manager)?.right()
+                EventType.PLAYER_MOVE_LEFT -> input<HorizontalModelInput>(manager)?.left()
+                EventType.PLAYER_JUMP -> input<JumpModelInput>(manager)?.jump()
             }
         }
 
@@ -120,4 +118,10 @@ fun Application.ApplicationModule(manager: ServerManager) {
     }
 }
 
-private suspend fun DefaultWebSocketServerSession.receiveText(): String = (incoming.receive() as Frame.Text).readText()
+private suspend inline fun <reified T : ModelInput> DefaultWebSocketServerSession.input(manager: ServerManager): T? {
+    incoming.receive()
+
+    val playerIndex = call.request.queryParameters["player"]?.toIntOrNull() ?: return null
+    val player = manager.players[playerIndex] ?: return null
+    return player.inputComponent.getOrNull() as? T
+}
