@@ -71,7 +71,6 @@ fun Application.ApplicationModule() {
         }
 
         webSocket("/${Endpoints.PLAYER_JUMP}") {
-
         }
     }
 }

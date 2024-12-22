@@ -5,6 +5,7 @@ package pixformer.controller.server
  */
 interface ServerManager {
     fun startServer(port: Int)
+
     fun connectToServer(port: Int)
 
     fun connectOrStart(port: Int)
