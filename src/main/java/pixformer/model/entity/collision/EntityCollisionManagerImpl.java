@@ -3,6 +3,7 @@ package pixformer.model.entity.collision;
 import pixformer.model.World;
 import pixformer.model.entity.Entity;
 
+import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -39,7 +40,7 @@ public class EntityCollisionManagerImpl implements EntityCollisionManager {
      */
     @Override
     public Set<Collision> findCollisionsFor(final Entity entity) {
-        return this.world.getEntities().stream()
+        return Collections.unmodifiableSet(this.world.getEntities()).stream()
                 .filter(other -> entity != other)
                 .map(other -> this.getCollision(entity, other).map(side -> new Collision(other, side)))
                 .flatMap(Optional::stream)
