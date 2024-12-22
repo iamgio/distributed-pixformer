@@ -2,7 +2,6 @@ package pixformer.model;
 
 import pixformer.model.entity.dynamic.player.Player;
 import pixformer.model.modelinput.CompleteModelInput;
-import pixformer.serialization.SerializableLevelData;
 
 import java.util.Optional;
 
@@ -47,7 +46,5 @@ public interface Level {
      */
     void init();
 
-    Player createPlayer(boolean playable);
-
-    void realign(SerializableLevelData data);
+    Player createPlayer(int index, boolean playable);
 }
