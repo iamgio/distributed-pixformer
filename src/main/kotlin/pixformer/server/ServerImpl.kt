@@ -16,14 +16,18 @@ import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
+import pixformer.controller.server.ServerManager
+import java.util.*
 import kotlin.time.Duration.Companion.seconds
 
 /**
  *
  */
-class ServerImpl : Server {
+class ServerImpl(
+    private val manager: ServerManager,
+) : Server {
     override fun start(port: Int) {
-        embeddedServer(Netty, port, module = Application::ApplicationModule).start(wait = true)
+        embeddedServer(Netty, port, module = { ApplicationModule(manager) }).start(wait = true)
     }
 
     override fun stop() {
@@ -32,7 +36,7 @@ class ServerImpl : Server {
 }
 
 @Suppress("FunctionName")
-fun Application.ApplicationModule() {
+fun Application.ApplicationModule(manager: ServerManager) {
     // Shared flow to broadcast messages to all connected clients.
     val messageResponseFlow = MutableSharedFlow<String>()
     val sharedFlow = messageResponseFlow.asSharedFlow()
@@ -68,6 +72,8 @@ fun Application.ApplicationModule() {
             }.also {
                 job.cancel()
             }
+
+            manager.onPlayerConnect(UUID.randomUUID())
         }
 
         webSocket("/${Endpoints.PLAYER_JUMP}") {

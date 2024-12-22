@@ -41,8 +41,9 @@ public interface Level {
     Optional<CompleteModelInput> getPlayer4();
 
     /**
-     * Sets up the game world.
-     * @param playersAmount amount of players to add to the game world
+     * Sets up the game world with zero players.
      */
-    void init(int playersAmount);
+    void init();
+
+    CompleteModelInput createPlayer();
 }

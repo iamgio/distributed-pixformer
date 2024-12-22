@@ -21,14 +21,13 @@ sealed interface MessageToServerType {
 }
 
 /**
- * A message sent from the client to the server to let the player jump.
- * @param player player ID
+ *
  */
-data class PlayerConnectMessage(private val player: Int) : MessageToServerType {
+data object PlayerConnectMessage : MessageToServerType {
     override val endpoint = "connect"
 
     override suspend fun send(session: DefaultClientWebSocketSession) {
-        session.send(Frame.Text(player.toString()))
+        session.send(Frame.Text(""))
     }
 }
 
@@ -36,7 +35,9 @@ data class PlayerConnectMessage(private val player: Int) : MessageToServerType {
  * A message sent from the client to the server to let the player jump.
  * @param player player ID
  */
-data class PlayerJumpMessage(private val player: Int) : MessageToServerType {
+data class PlayerJumpMessage(
+    private val player: Int,
+) : MessageToServerType {
     override val endpoint = "jump"
 
     override suspend fun send(session: DefaultClientWebSocketSession) {

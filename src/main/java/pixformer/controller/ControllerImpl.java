@@ -1,5 +1,6 @@
 package pixformer.controller;
 
+import kotlin.Unit;
 import pixformer.common.file.FileUtils;
 import pixformer.common.wrap.SimpleWrapper;
 import pixformer.common.wrap.Wrapper;
@@ -19,6 +20,7 @@ import pixformer.model.WorldOptionsFactory;
 import pixformer.model.entity.Entity;
 import pixformer.model.entity.EntityFactoryImpl;
 import pixformer.model.entity.GraphicsComponentFactory;
+import pixformer.model.modelinput.CompleteModelInput;
 import pixformer.view.View;
 
 import java.io.File;
@@ -79,16 +81,29 @@ public final class ControllerImpl implements Controller {
         }
 
         this.setupLevelChangeActions();
+        this.setupServerConnectionActions();
         this.copyBuiltinLevelFiles();
     }
 
     private void setupLevelChangeActions() {
         getLevelManager().addOnLevelStart((level, playersAmount) -> {
             this.getServerManager().connectOrStart(ServerManagerImplKt.PORT); // Distributed patch!
-            level.init(playersAmount);
+            level.init();
             this.getGameLoopManager().start();
         });
         getLevelManager().addOnLevelEnd((level, leaderboard) -> this.getGameLoopManager().stop());
+    }
+
+    private void setupServerConnectionActions() {
+        this.getServerManager().setOnPlayerConnect(uuid -> {
+            System.out.println("Player connected: " + uuid);
+
+            this.getLevelManager().getCurrentLevel().ifPresent(level -> {
+                CompleteModelInput player = level.createPlayer();
+                this.getServerManager().getPlayers().put(uuid, player);
+            });
+            return Unit.INSTANCE;
+        });
     }
 
     /**

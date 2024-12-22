@@ -8,7 +8,6 @@ import pixformer.model.modelinput.CompleteModelInput;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.IntStream;
 
 /**
  * Implementation of a game {@link Level}.
@@ -106,17 +105,22 @@ public class LevelImpl implements Level {
      * {@inheritDoc}
      */
     @Override
-    public void init(final int playersAmount) {
+    public void init() {
         this.data.entities().forEach(this.world::spawnEntity);
 
-        IntStream.range(0, playersAmount).forEach(i -> {
-            final Entity player = this.createPlayer(i, data.spawnPointX(), data.spawnPointY(), data.entityFactory());
-            this.world.spawnEntity(player);
+        createPlayer();
+    }
 
-            player.getInputComponent().ifPresent(inputComponent -> {
-                this.players.add(ModelInputAdapter.from(inputComponent));
-            });
-        });
+    @Override
+    public CompleteModelInput createPlayer() {
+        final Entity player = this.createPlayer(players.size(), data.spawnPointX(), data.spawnPointY(), data.entityFactory());
+        this.world.spawnEntity(player);
+
+        return player.getInputComponent().map(inputComponent -> {
+            final CompleteModelInput input = ModelInputAdapter.from(inputComponent);
+            this.players.add(input);
+            return input;
+        }).orElseThrow(() -> new IllegalStateException("Player entity must have an input component."));
     }
 
     /**
