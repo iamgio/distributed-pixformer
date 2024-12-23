@@ -7,7 +7,7 @@ import pixformer.model.entity.collision.DefaultRectangleBoundingBoxEntity;
 /**
  * The default implementation of an enemy.
  */
-public class EnemyImpl extends AbstractEntity implements DefaultRectangleBoundingBoxEntity, Enemy {
+public abstract class EnemyImpl extends AbstractEntity implements DefaultRectangleBoundingBoxEntity, Enemy {
     private final double velocityModule;
 
     /**

@@ -1,5 +1,6 @@
 package pixformer.model.entity.dynamic.enemy.koopa;
 
+import pixformer.model.entity.EntityVisitor;
 import pixformer.model.entity.dynamic.enemy.Enemy;
 
 /**
@@ -7,4 +8,8 @@ import pixformer.model.entity.dynamic.enemy.Enemy;
  */
 public interface Koopa extends KoopaState, Enemy {
 
+    @Override
+    default <T> T accept(EntityVisitor<T> visitor) {
+        return visitor.visit(this);
+    }
 }

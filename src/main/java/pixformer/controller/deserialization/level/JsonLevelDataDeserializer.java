@@ -13,6 +13,7 @@ import pixformer.controller.deserialization.level.macro.TranslateMacro;
 import pixformer.model.LevelData;
 import pixformer.model.entity.Entity;
 import pixformer.model.entity.EntityFactory;
+import pixformer.serialization.DeserializeStateUpdaterEntityVisitor;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -81,7 +82,11 @@ public class JsonLevelDataDeserializer implements LevelDataDeserializer, JsonDes
 
         final EntityMacro macro = this.retrieveMacro(json.getAsJsonObject("macro"));
 
-        entities.addAll(macro.apply(entitySupplier));
+        // Apply state of the entity.
+        final var deserializer = new DeserializeStateUpdaterEntityVisitor(json);
+        macro.apply(entitySupplier).stream()
+                .peek(entity -> entity.accept(deserializer))
+                .forEach(entities::add);
     }
 
     private EntityMacro retrieveMacro(final JsonObject macroJson) {

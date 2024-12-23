@@ -1,6 +1,7 @@
 package pixformer.model.entity.dynamic.enemy.goomba;
 
 import pixformer.model.entity.DrawableEntity;
+import pixformer.model.entity.EntityVisitor;
 import pixformer.model.entity.GraphicsComponent;
 import pixformer.model.entity.GraphicsComponentRetriever;
 import pixformer.model.entity.collision.CollisionComponent;
@@ -56,5 +57,10 @@ public final class Goomba extends EnemyImpl implements DrawableEntity {
     @Override
     public Optional<InputComponent> getInputComponent() {
         return Optional.of(inputComponent);
+    }
+
+    @Override
+    public <T> T accept(EntityVisitor<T> visitor) {
+        return visitor.visit(this);
     }
 }

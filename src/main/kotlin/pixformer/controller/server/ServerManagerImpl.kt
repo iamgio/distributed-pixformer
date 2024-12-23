@@ -60,7 +60,7 @@ class ServerManagerImpl : ServerManager {
             println("Aligning with server")
 
             try {
-                RealignRequest().send(port = PORT, manager = this)
+                RealignRequest().send(manager = this)
             } catch (ignored: IOException) {
             }
 

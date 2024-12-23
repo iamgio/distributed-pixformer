@@ -3,6 +3,7 @@ package pixformer.model.entity.powerup.other.fireball;
 import pixformer.model.entity.AbstractEntity;
 import pixformer.model.entity.DrawableEntity;
 import pixformer.model.entity.Entity;
+import pixformer.model.entity.EntityVisitor;
 import pixformer.model.entity.GraphicsComponent;
 import pixformer.model.entity.GraphicsComponentRetriever;
 import pixformer.model.entity.Projectile;
@@ -80,5 +81,10 @@ public class Fireball extends AbstractEntity implements DrawableEntity, DefaultR
     @Override
     public Entity getShooter() {
         return shooter;
+    }
+
+    @Override
+    public <T> T accept(EntityVisitor<T> visitor) {
+        return visitor.visit(this);
     }
 }

@@ -3,6 +3,7 @@ package pixformer.model.entity.statics.surprise;
 import pixformer.model.entity.AbstractEntity;
 import pixformer.model.entity.DrawableEntity;
 import pixformer.model.entity.Entity;
+import pixformer.model.entity.EntityVisitor;
 import pixformer.model.entity.GraphicsComponent;
 import pixformer.model.entity.GraphicsComponentRetriever;
 import pixformer.model.entity.PowerUpFactory;
@@ -61,6 +62,10 @@ public final class Surprise extends AbstractEntity implements DefaultRectangleBo
         return this.hasCollided;
     }
 
+    public void setHasCollided(boolean hasCollided) {
+        this.hasCollided = hasCollided;
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -75,5 +80,10 @@ public final class Surprise extends AbstractEntity implements DefaultRectangleBo
     @Override
     public Optional<CollisionComponent> getCollisionComponent() {
         return Optional.of(this.collisionComponent);
+    }
+
+    @Override
+    public <T> T accept(EntityVisitor<T> visitor) {
+        return visitor.visit(this);
     }
 }

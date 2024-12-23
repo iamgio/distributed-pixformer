@@ -114,6 +114,8 @@ fun Application.ApplicationModule(manager: ServerManager) {
 
             val serialized = LevelSerialization.serialize(level)
             call.respondText(serialized)
+
+            println(LevelSerialization.serializeNEW(level))
         }
     }
 }

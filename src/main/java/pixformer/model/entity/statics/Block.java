@@ -2,6 +2,7 @@ package pixformer.model.entity.statics;
 
 import pixformer.model.entity.AbstractEntity;
 import pixformer.model.entity.DrawableEntity;
+import pixformer.model.entity.EntityVisitor;
 import pixformer.model.entity.GraphicsComponent;
 import pixformer.model.entity.GraphicsComponentRetriever;
 import pixformer.model.entity.collision.DefaultRectangleBoundingBoxEntity;
@@ -35,5 +36,10 @@ public final class Block extends AbstractEntity implements DefaultRectangleBound
     @Override
     public GraphicsComponent getGraphicsComponent() {
         return this.graphicsComponent;
+    }
+
+    @Override
+    public <T> T accept(EntityVisitor<T> visitor) {
+        return visitor.visit(this);
     }
 }

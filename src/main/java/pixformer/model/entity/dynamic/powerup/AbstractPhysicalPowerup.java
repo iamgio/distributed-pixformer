@@ -1,6 +1,7 @@
 package pixformer.model.entity.dynamic.powerup;
 
 import pixformer.model.entity.AbstractEntity;
+import pixformer.model.entity.EntityVisitor;
 import pixformer.model.entity.powerup.PhysicalPowerup;
 
 /**
@@ -36,5 +37,10 @@ public abstract class AbstractPhysicalPowerup extends AbstractEntity implements 
     @Override
     public void consume() {
         this.consumed = true;
+    }
+
+    @Override
+    public <T> T accept(EntityVisitor<T> visitor) {
+        return visitor.visit(this);
     }
 }

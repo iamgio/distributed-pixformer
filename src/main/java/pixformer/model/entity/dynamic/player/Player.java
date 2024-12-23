@@ -1,6 +1,7 @@
 package pixformer.model.entity.dynamic.player;
 
 import pixformer.model.entity.DrawableEntity;
+import pixformer.model.entity.EntityVisitor;
 import pixformer.model.entity.MutableEntity;
 import pixformer.model.entity.collision.DefaultRectangleBoundingBoxEntity;
 import pixformer.model.entity.powerup.Powerupable;
@@ -30,4 +31,9 @@ public interface Player extends Powerupable, DrawableEntity, DefaultRectangleBou
      * @return true if the player is touching something above him, false otherwise.
      */
     boolean isTouchingAbove();
+
+    @Override
+    default <T> T accept(EntityVisitor<T> visitor) {
+        return visitor.visit(this);
+    }
 }

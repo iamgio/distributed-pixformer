@@ -64,6 +64,8 @@ public interface Entity extends Updatable {
      */
     boolean isSolid();
 
+    <T> T accept(EntityVisitor<T> visitor);
+
     /**
      * @param other other entity
      * @return distance between the two entities
