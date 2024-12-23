@@ -3,7 +3,7 @@ package pixformer.serialization
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import pixformer.controller.server.Realigner
+import pixformer.controller.realign.Realigner
 import pixformer.model.Level
 
 /**

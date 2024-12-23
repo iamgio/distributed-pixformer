@@ -16,18 +16,13 @@ import pixformer.server.Endpoints
 class RealignRequest {
     /**
      * Asynchronously sends the message to a WebSocket server.
-     * @param host host of the server
-     * @param port port of the server
+     * @param manager the server manager
      */
-    fun send(
-        host: String = "localhost",
-        port: Int,
-        manager: ServerManager,
-    ) = runBlocking {
+    fun send(manager: ServerManager) = runBlocking {
         launch(Dispatchers.IO) {
             val client = HttpClient(CIO)
 
-            val response = client.get("http://$host:$port/${Endpoints.REALIGN}")
+            val response = client.get("http://localhost:${manager.port}/${Endpoints.REALIGN}")
 
             client.close()
 

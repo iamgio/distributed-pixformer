@@ -9,7 +9,7 @@ import pixformer.controller.gameloop.GameLoop;
 import pixformer.controller.gameloop.GameLoopFactory;
 import pixformer.controller.level.LevelManager;
 import pixformer.controller.level.LevelManagerImpl;
-import pixformer.controller.server.Realigner;
+import pixformer.controller.realign.Realigner;
 import pixformer.controller.server.ServerManager;
 import pixformer.controller.server.ServerManagerImpl;
 import pixformer.model.Level;
