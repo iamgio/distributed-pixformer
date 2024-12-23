@@ -17,6 +17,7 @@ import pixformer.model.entity.statics.brick.Brick
 import pixformer.model.entity.statics.coin.Coin
 import pixformer.model.entity.statics.pole.Pole
 import pixformer.model.entity.statics.surprise.Surprise
+import kotlin.jvm.optionals.getOrNull
 
 /**
  * A visitor that serializes entities to JSON.
@@ -67,7 +68,13 @@ class SerializeEntityVisitor : EntityVisitor<JsonObject> {
     override fun visit(player: Player) =
         serialize("player", player) {
             put("playerIndex", player.index)
-            put("powerup", player.powerup.behaviour.javaClass.simpleName)
+            put(
+                "powerup",
+                player.powerup.behaviour
+                    .getOrNull()
+                    ?.javaClass
+                    ?.simpleName,
+            )
         }
 
     override fun visit(fireball: Fireball) = serialize("fireball", fireball)

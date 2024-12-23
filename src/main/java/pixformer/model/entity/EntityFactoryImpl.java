@@ -138,7 +138,7 @@ public class EntityFactoryImpl implements EntityFactory, PowerUpFactory, TurtleK
     /**
      * {@inheritDoc}
      */
-    @EntityType("player")
+    @EntityType(value = "player", parameters = {"x", "y", "playerIndex"})
     @Override
     public PlayerImpl createMainCharacter(final double x, final double y, final int playerIndex) {
         final PlayerImpl player = new PlayerImpl(x, y, playerIndex, this);
