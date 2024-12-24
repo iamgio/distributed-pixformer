@@ -11,6 +11,7 @@ import pixformer.controller.realign.Realigner
 import pixformer.model.Level
 import pixformer.model.LevelData
 import pixformer.model.entity.EntityFactory
+import pixformer.model.entity.statics.Block
 
 /**
  * A utility class to serialize and deserialize level information on-the-fly to allow reconciliation between server and client.
@@ -38,7 +39,7 @@ object LevelSerialization {
 
     fun serializeNEW(level: Level): String {
         val world = level.world
-        val jsonObjs = world.entities.map { it.accept(SerializeEntityVisitor()) }
+        val jsonObjs = world.entities.filter { it !is Block }.map { it.accept(SerializeEntityVisitor()) }
 
         val json =
             buildJsonObject {

@@ -7,6 +7,7 @@ import pixformer.model.score.ScoreManager;
 
 import java.util.List;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 /**
@@ -88,4 +89,6 @@ public interface World extends Updatable {
      * @param winner player who won the game
      */
     void endGame(Entity winner);
+
+    void replaceEntities(Set<Entity> entities, Predicate<Entity> filter);
 }

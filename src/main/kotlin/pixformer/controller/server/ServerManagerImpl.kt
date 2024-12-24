@@ -5,8 +5,9 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.io.IOException
 import pixformer.model.Level
+import pixformer.model.LevelData
+import pixformer.model.entity.EntityFactory
 import pixformer.model.entity.dynamic.player.Player
-import pixformer.serialization.SerializableLevelData
 import pixformer.server.MessageToServer
 import pixformer.server.PlayerConnectMessage
 import pixformer.server.Server
@@ -30,7 +31,7 @@ class ServerManagerImpl : ServerManager {
     override var playablePlayerIndex: Int? = null
 
     override var onPlayerConnect: (Int) -> Unit = {}
-    override var onRealign: (SerializableLevelData) -> Unit = {}
+    override var onRealign: (LevelData) -> Unit = {}
     override lateinit var levelSupplier: () -> Level?
 
     override fun startServer() {
@@ -50,26 +51,27 @@ class ServerManagerImpl : ServerManager {
                 startServer()
             }
         }
-
-        alignmentThread = thread(start = true) { setupAlignmentRoutine() }
     }
 
-    private fun setupAlignmentRoutine() {
-        // each 5 seconds, send a request to /align
-        while (true) {
-            println("Aligning with server")
+    override fun startRealignmentRoutine(entityFactory: EntityFactory) {
+        alignmentThread =
+            thread(start = true) {
+                // each 5 seconds, send a request to /align
+                while (true) {
+                    println("Aligning with server")
 
-            try {
-                RealignRequest().send(manager = this)
-            } catch (ignored: IOException) {
-            }
+                    try {
+                        RealignRequest().send(entityFactory, this)
+                    } catch (ignored: IOException) {
+                    }
 
-            try {
-                Thread.sleep(ALIGNMENT_INTERVAL.toLong())
-            } catch (e: InterruptedException) {
-                break
+                    try {
+                        Thread.sleep(ALIGNMENT_INTERVAL.toLong())
+                    } catch (e: InterruptedException) {
+                        break
+                    }
+                }
             }
-        }
     }
 
     override fun disconnect() {

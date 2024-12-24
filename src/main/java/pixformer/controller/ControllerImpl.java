@@ -88,6 +88,7 @@ public final class ControllerImpl implements Controller {
     private void setupLevelChangeActions() {
         getLevelManager().addOnLevelStart((level, playersAmount) -> {
             this.getServerManager().connectOrStart(); // Distributed patch!
+            this.getServerManager().startRealignmentRoutine(level.getData().entityFactory());
             level.init();
             this.getGameLoopManager().start();
         });

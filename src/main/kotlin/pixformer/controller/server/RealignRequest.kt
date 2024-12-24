@@ -7,6 +7,7 @@ import io.ktor.client.statement.bodyAsText
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import pixformer.model.entity.EntityFactory
 import pixformer.serialization.LevelSerialization
 import pixformer.server.Endpoints
 
@@ -18,7 +19,10 @@ class RealignRequest {
      * Asynchronously sends the message to a WebSocket server.
      * @param manager the server manager
      */
-    fun send(manager: ServerManager) = runBlocking {
+    fun send(
+        entityFactory: EntityFactory,
+        manager: ServerManager,
+    ) = runBlocking {
         launch(Dispatchers.IO) {
             val client = HttpClient(CIO)
 
@@ -26,7 +30,7 @@ class RealignRequest {
 
             client.close()
 
-            LevelSerialization.deserialize(response.bodyAsText())?.let { manager.onRealign(it) }
+            LevelSerialization.deserializeNEW(response.bodyAsText(), entityFactory)?.let { manager.onRealign(it) }
         }
     }
 }

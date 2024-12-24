@@ -15,6 +15,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -201,5 +202,24 @@ public class WorldImpl implements World {
         if (command != null) {
             command.run();
         }
+    }
+
+    @Override
+    public void replaceEntities(final Set<Entity> entities, final Predicate<Entity> filter) {
+        final Set<Entity> toRemove = this.entities.stream()
+                .filter(filter)
+                .collect(Collectors.toSet());
+
+        final Set<Entity> toAdd = entities.stream()
+                .filter(filter)
+                .collect(Collectors.toSet());
+
+        this.entities.removeAll(toRemove);
+        //this.entities.addAll(toAdd);
+
+        toAdd.forEach(this::queueEntitySpawn);
+        //toRemove.forEach(this::queueEntityDrop);
+
+        this.lazyUserControlledEntity = null;
     }
 }

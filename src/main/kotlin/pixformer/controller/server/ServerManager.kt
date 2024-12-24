@@ -1,8 +1,9 @@
 package pixformer.controller.server
 
 import pixformer.model.Level
+import pixformer.model.LevelData
+import pixformer.model.entity.EntityFactory
 import pixformer.model.entity.dynamic.player.Player
-import pixformer.serialization.SerializableLevelData
 
 /**
  * A bridge between controller and server to enable client-server communication.
@@ -14,7 +15,7 @@ interface ServerManager {
     val port: Int
 
     var onPlayerConnect: (Int) -> Unit
-    var onRealign: (SerializableLevelData) -> Unit
+    var onRealign: (LevelData) -> Unit
     var levelSupplier: () -> Level?
 
     fun startServer()
@@ -22,6 +23,8 @@ interface ServerManager {
     fun connectToServer()
 
     fun connectOrStart()
+
+    fun startRealignmentRoutine(entityFactory: EntityFactory)
 
     fun disconnect()
 }
