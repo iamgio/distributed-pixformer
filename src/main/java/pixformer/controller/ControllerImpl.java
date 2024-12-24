@@ -112,9 +112,10 @@ public final class ControllerImpl implements Controller {
             return Unit.INSTANCE;
         });
 
+        final Realigner realigner = new Realigner(this.getServerManager());
         this.getServerManager().setOnRealign(data -> {
             this.getLevelManager().getCurrentLevel().ifPresent(level -> {
-                new Realigner(this.getServerManager()).realign(data, level);
+                realigner.realign(data, level);
             });
             return Unit.INSTANCE;
         });
