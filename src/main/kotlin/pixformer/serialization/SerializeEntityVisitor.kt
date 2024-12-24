@@ -11,6 +11,8 @@ import pixformer.model.entity.dynamic.enemy.koopa.Koopa
 import pixformer.model.entity.dynamic.player.Player
 import pixformer.model.entity.dynamic.powerup.AbstractPhysicalPowerup
 import pixformer.model.entity.powerup.other.fireball.Fireball
+import pixformer.model.entity.powerup.powerups.FireFlower
+import pixformer.model.entity.powerup.powerups.Mushroom
 import pixformer.model.entity.statics.Barrier
 import pixformer.model.entity.statics.Block
 import pixformer.model.entity.statics.brick.Brick
@@ -79,5 +81,13 @@ class SerializeEntityVisitor : EntityVisitor<JsonObject> {
 
     override fun visit(fireball: Fireball) = serialize("fireball", fireball)
 
-    override fun visit(powerup: AbstractPhysicalPowerup) = serialize("powerup", powerup)
+    override fun visit(powerup: AbstractPhysicalPowerup) =
+        serialize(
+            when (powerup.powerupBehaviour) {
+                is FireFlower -> "fire_flower"
+                is Mushroom -> "mushroom"
+                else -> throw IllegalArgumentException("Unknown powerup type: ${powerup.powerupBehaviour}")
+            },
+            powerup,
+        )
 }
