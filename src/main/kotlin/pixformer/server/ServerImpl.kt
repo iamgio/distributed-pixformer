@@ -112,10 +112,10 @@ fun Application.ApplicationModule(manager: ServerManager) {
         get("/${Endpoints.REALIGN}") {
             val level = manager.levelSupplier() ?: return@get
 
-            val serialized = LevelSerialization.serializeNEW(level)
+            val serialized = LevelSerialization.serialize(level)
             call.respondText(serialized)
 
-            println(LevelSerialization.serializeNEW(level))
+            println(LevelSerialization.serialize(level))
         }
     }
 }

@@ -36,7 +36,7 @@ class SerializationTest {
         val level = LevelImpl(LevelData("test", entityFactory, entities, 3, 0))
         level.init()
 
-        val json = LevelSerialization.serializeNEW(level)
+        val json = LevelSerialization.serialize(level)
         assertEquals(
             """
             {"name":"test","spawnPointX":3,"spawnPointY":0,"entities":[{"type":"goomba","x":2.0,"y":1.0,"velocity":{"x":3.2,"y":1.0}}]}
@@ -44,7 +44,7 @@ class SerializationTest {
             json,
         )
 
-        val deserialized = LevelSerialization.deserializeNEW(json, entityFactory)!!
+        val deserialized = LevelSerialization.deserialize(json, entityFactory)!!
         assertEquals(level.data.name, deserialized.name)
         assertEquals(level.data.spawnPointX, deserialized.spawnPointX)
         assertEquals(level.data.spawnPointY, deserialized.spawnPointY)
@@ -69,7 +69,7 @@ class SerializationTest {
         val level = LevelImpl(LevelData("test", entityFactory, entities, 3, 0))
         level.init()
 
-        val json = LevelSerialization.serializeNEW(level)
+        val json = LevelSerialization.serialize(level)
         assertEquals(
             """
             {"name":"test","spawnPointX":3,"spawnPointY":0,"entities":[{"type":"surprise","x":0.0,"y":1.0,"velocity":{"x":0.0,"y":0.0},"hasCollided":true}]}
@@ -77,7 +77,7 @@ class SerializationTest {
             json,
         )
 
-        val deserialized = LevelSerialization.deserializeNEW(json, entityFactory)!!
+        val deserialized = LevelSerialization.deserialize(json, entityFactory)!!
         assertEquals(level.data.name, deserialized.name)
         assertEquals(level.data.spawnPointX, deserialized.spawnPointX)
         assertEquals(level.data.spawnPointY, deserialized.spawnPointY)
@@ -95,7 +95,7 @@ class SerializationTest {
         level.init()
         level.createPlayer(3, true) { it }
 
-        val json = LevelSerialization.serializeNEW(level)
+        val json = LevelSerialization.serialize(level)
         assertEquals(
             """
             {"name":"test","spawnPointX":5,"spawnPointY":2,"entities":[{"type":"player","x":5.0,"y":2.0,"velocity":{"x":0.0,"y":0.0},"playerIndex":3,"powerup":null}]}
@@ -103,7 +103,7 @@ class SerializationTest {
             json,
         )
 
-        val deserialized = LevelSerialization.deserializeNEW(json, entityFactory)!!
+        val deserialized = LevelSerialization.deserialize(json, entityFactory)!!
         assertEquals(level.data.name, deserialized.name)
         assertEquals(level.data.spawnPointX, deserialized.spawnPointX)
         assertEquals(level.data.spawnPointY, deserialized.spawnPointY)

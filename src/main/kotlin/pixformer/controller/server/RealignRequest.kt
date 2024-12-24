@@ -30,7 +30,7 @@ class RealignRequest {
 
             client.close()
 
-            LevelSerialization.deserializeNEW(response.bodyAsText(), entityFactory)?.let { manager.onRealign(it) }
+            LevelSerialization.deserialize(response.bodyAsText(), entityFactory)?.let { manager.onRealign(it) }
         }
     }
 }
