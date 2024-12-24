@@ -205,13 +205,13 @@ public class WorldImpl implements World {
     }
 
     @Override
-    public void replaceEntities(final Set<Entity> entities, final Predicate<Entity> filter) {
+    public void replaceEntities(final Set<Entity> entities, final Predicate<Entity> filterToAdd, final Predicate<Entity> filterToRemove) {
         final Set<Entity> toRemove = this.entities.stream()
-                .filter(filter)
+                .filter(filterToAdd)
                 .collect(Collectors.toSet());
 
         final Set<Entity> toAdd = entities.stream()
-                .filter(filter)
+                .filter(filterToRemove)
                 .collect(Collectors.toSet());
 
         this.entities.removeAll(toRemove);

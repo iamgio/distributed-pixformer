@@ -90,5 +90,5 @@ public interface World extends Updatable {
      */
     void endGame(Entity winner);
 
-    void replaceEntities(Set<Entity> entities, Predicate<Entity> filter);
+    void replaceEntities(Set<Entity> entities, Predicate<Entity> filterToAdd, Predicate<Entity> filterToRemove);
 }

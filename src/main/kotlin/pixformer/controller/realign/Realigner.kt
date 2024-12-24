@@ -1,5 +1,6 @@
 package pixformer.controller.realign
 
+import pixformer.controller.server.ServerEventCompleteModelInputDecorator
 import pixformer.controller.server.ServerManager
 import pixformer.model.Level
 import pixformer.model.LevelData
@@ -14,12 +15,15 @@ class Realigner(
 ) {
     fun realign(
         new: LevelData,
-        old: Level,
+        current: Level,
     ) {
-        old.world.replaceEntities(new.entities) {
-            it !is Block && (it !is Player || it.index != manager.playablePlayerIndex)
-        }
+        current.world.replaceEntities(
+            new.entities,
+            { it !is Block && (it !is Player || it.index != manager.playablePlayerIndex) }, // Filter to add
+            { it !is Block }, // Filter to remove
+        )
 
-        // todo remove all and spawn
+        // todo fix duplicates
+        val newPlayer = current.createPlayer(manager.playablePlayerIndex!!, true) { ServerEventCompleteModelInputDecorator(it, manager) }
     }
 }
