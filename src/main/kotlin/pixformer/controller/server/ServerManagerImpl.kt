@@ -26,6 +26,8 @@ class ServerManagerImpl : ServerManager {
     private var alignmentThread: Thread? = null
 
     override val port: Int = PORT
+    override val isLeader: Boolean
+        get() = server != null
 
     override val players = mutableMapOf<Int, Player>()
     override var playablePlayerIndex: Int? = null
@@ -35,7 +37,8 @@ class ServerManagerImpl : ServerManager {
     override lateinit var levelSupplier: () -> Level?
 
     override fun startServer() {
-        server = ServerImpl(this).also { it.start(port) }
+        server = ServerImpl(this)
+        server!!.start(port)
     }
 
     override fun connectToServer() {
@@ -58,6 +61,11 @@ class ServerManagerImpl : ServerManager {
             thread(start = true) {
                 // each 5 seconds, send a request to /align
                 while (true) {
+                    if (isLeader) {
+                        // If the client is the leader, thus it's also the server, the realignment is not needed.
+                        break
+                    }
+
                     println("Aligning with server")
 
                     try {

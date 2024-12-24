@@ -12,6 +12,7 @@ interface ServerManager {
     val players: Map<Int, Player>
     var playablePlayerIndex: Int?
 
+    val isLeader: Boolean
     val port: Int
 
     var onPlayerConnect: (Int) -> Unit
