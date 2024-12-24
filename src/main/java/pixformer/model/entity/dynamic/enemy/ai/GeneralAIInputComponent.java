@@ -1,5 +1,6 @@
 package pixformer.model.entity.dynamic.enemy.ai;
 
+import pixformer.common.Vector2D;
 import pixformer.model.World;
 import pixformer.model.entity.MutableEntity;
 import pixformer.model.entity.collision.Collision;
@@ -17,6 +18,7 @@ import java.util.function.Predicate;
  */
 public class GeneralAIInputComponent extends AIInputComponent {
     private final CollisionReactor collisionReactor;
+    private final double velocityModule;
 
     /**
      * @param entity to be controlled.
@@ -30,6 +32,7 @@ public class GeneralAIInputComponent extends AIInputComponent {
             final Consumer<HorizontalModelInput> initialBehaviour,
             final Predicate<Collision> whichCollisions) {
         super(entity);
+        this.velocityModule = velocityModule;
         final var joystick = new HorizontalModelInputImpl(new OnlyXVelocitySetter(entity), velocityModule);
         collisionReactor = new GeneralAICollisionReactor(joystick, initialBehaviour, whichCollisions);
     }
@@ -37,6 +40,9 @@ public class GeneralAIInputComponent extends AIInputComponent {
     @Override
     public final void update(final World world) {
         final var collisions = world.getCollisionManager().findCollisionsFor(getEntity());
+        if (getEntity().getVelocity().x() == 0) {
+            getEntity().setVelocity(new Vector2D(-velocityModule, 0));
+        }
         collisionReactor.react(collisions);
     }
 }

@@ -44,7 +44,8 @@ public class GeneralAICollisionReactor implements CollisionReactor {
                 .filter(CollisionSide::isHorizontal)
                 .collect(Collectors.toSet());
         if (horizontals.isEmpty() && currentBehaviour == null) {
-            currentBehaviour = initialBehavior;
+            //currentBehaviour = initialBehavior;
+            return;
         }
         if (horizontals.contains(CollisionSide.LEFT) && !horizontals.contains(CollisionSide.RIGHT)) {
             currentBehaviour = HorizontalModelInput::left;
