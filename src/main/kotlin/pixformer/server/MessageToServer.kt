@@ -22,7 +22,7 @@ data class MessageToServer(
      * Asynchronously sends the message to a WebSocket server.
      * @param manager server manager
      */
-    fun send(manager: ServerManager) =
+    fun send(manager: ServerManager, endpoint: String = Endpoints.WEBSOCKETS) =
         runBlocking {
             launch(Dispatchers.IO) {
                 val client =
@@ -30,7 +30,7 @@ data class MessageToServer(
                         install(WebSockets)
                     }
 
-                client.webSocket("ws://localhost:${manager.port}/ws?type=${type.name}&player=${manager.playablePlayerIndex}") {
+                client.webSocket("ws://localhost:${manager.port}/$endpoint?type=${type.name}&player=${manager.playablePlayerIndex}") {
                     type.send(manager, this)
                 }
 

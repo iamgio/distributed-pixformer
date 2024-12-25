@@ -106,7 +106,7 @@ public final class ControllerImpl implements Controller {
             System.out.println("Player connected: " + index);
 
             this.getLevelManager().getCurrentLevel().ifPresent(level -> {
-                Player player = level.createPlayer(index, true, input -> input);
+                Player player = level.createPlayer(index, true, this.getServerManager().modelInputMapper());
                 this.getServerManager().getPlayers().put(index, player);
             });
             return Unit.INSTANCE;

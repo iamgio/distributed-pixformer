@@ -1,6 +1,5 @@
 package pixformer.controller.realign
 
-import pixformer.controller.server.ServerEventCompleteModelInputDecorator
 import pixformer.controller.server.ServerManager
 import pixformer.model.Level
 import pixformer.model.LevelData
@@ -42,9 +41,7 @@ class Realigner(
         // Create the player entity if it does not exist.
         if (player == null) {
             player =
-                current.createPlayer(manager.playablePlayerIndex!!, true) {
-                    ServerEventCompleteModelInputDecorator(it, manager)
-                }
+                current.createPlayer(manager.playablePlayerIndex!!, true, manager.modelInputMapper())
         }
 
         // Update the player entity with the player state received from the server.

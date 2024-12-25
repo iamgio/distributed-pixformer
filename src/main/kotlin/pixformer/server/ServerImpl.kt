@@ -11,23 +11,21 @@ import io.ktor.server.response.respondText
 import io.ktor.server.routing.get
 import io.ktor.server.routing.routing
 import io.ktor.server.websocket.DefaultWebSocketServerSession
+import io.ktor.server.websocket.WebSocketServerSession
 import io.ktor.server.websocket.WebSockets
 import io.ktor.server.websocket.pingPeriod
 import io.ktor.server.websocket.timeout
 import io.ktor.server.websocket.webSocket
 import io.ktor.websocket.Frame
-import io.ktor.websocket.readText
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import pixformer.controller.server.ServerManager
 import pixformer.model.modelinput.HorizontalModelInput
 import pixformer.model.modelinput.JumpModelInput
 import pixformer.model.modelinput.ModelInput
 import pixformer.serialization.LevelSerialization
+import java.util.Collections
 import kotlin.jvm.optionals.getOrNull
 import kotlin.time.Duration.Companion.seconds
 
@@ -50,10 +48,6 @@ class ServerImpl(
 
 @Suppress("FunctionName")
 fun Application.ApplicationModule(manager: ServerManager) {
-    // Shared flow to broadcast messages to all connected clients.
-    val messageResponseFlow = MutableSharedFlow<String>()
-    val sharedFlow = messageResponseFlow.asSharedFlow()
-
     install(WebSockets) {
         pingPeriod = 1.seconds
         timeout = 10.seconds
@@ -67,17 +61,9 @@ fun Application.ApplicationModule(manager: ServerManager) {
         }
     }
 
-    fun DefaultWebSocketServerSession.broadcast() {
-        // Forward messages to all connected clients as a broadcast.
-        val job =
-            launch {
-                sharedFlow.collect { message ->
-                    send(Frame.Text(message))
-                }
-            }
-    }
-
     routing {
+        val sessions = Collections.synchronizedList<WebSocketServerSession>(ArrayList())
+
         webSocket("/${Endpoints.WEBSOCKETS}") {
             when (call.request.queryParameters["type"]) {
                 EventType.PLAYER_CONNECT -> {
@@ -91,21 +77,20 @@ fun Application.ApplicationModule(manager: ServerManager) {
                     send(Frame.Text("$playerIndex"))
                     manager.onPlayerConnect(playerIndex)
 
-                    runCatching {
-                        incoming.consumeEach { frame ->
-                            if (frame is Frame.Text) {
-                                val receivedText = frame.readText()
-                                messageResponseFlow.emit(receivedText)
-                            }
-                        }
-                    }.onFailure { exception ->
-                        log.error("WebSocket error: ${exception.message}")
-                    }
+                    sessions.add(this)
                 }
 
                 EventType.PLAYER_MOVE_RIGHT -> input<HorizontalModelInput>(manager)?.right()
                 EventType.PLAYER_MOVE_LEFT -> input<HorizontalModelInput>(manager)?.left()
-                EventType.PLAYER_JUMP -> input<JumpModelInput>(manager)?.jump()
+                EventType.PLAYER_JUMP -> {
+                    input<JumpModelInput>(manager)?.jump()
+                }
+            }
+
+            for (session in sessions) {
+                for (frame in incoming) {
+                    session.send(frame)
+                }
             }
         }
 
@@ -121,9 +106,14 @@ fun Application.ApplicationModule(manager: ServerManager) {
 }
 
 private suspend inline fun <reified T : ModelInput> DefaultWebSocketServerSession.input(manager: ServerManager): T? {
-    incoming.receive()
+    // incoming.receive()
 
     val playerIndex = call.request.queryParameters["player"]?.toIntOrNull() ?: return null
+
+    if (manager.playablePlayerIndex == playerIndex) {
+        return null
+    }
+
     val player = manager.players[playerIndex] ?: return null
     return player.inputComponent.getOrNull() as? T
 }

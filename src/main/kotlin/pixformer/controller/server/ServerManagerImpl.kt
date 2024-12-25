@@ -8,6 +8,7 @@ import pixformer.model.Level
 import pixformer.model.LevelData
 import pixformer.model.entity.EntityFactory
 import pixformer.model.entity.dynamic.player.Player
+import pixformer.model.modelinput.CompleteModelInput
 import pixformer.server.MessageToServer
 import pixformer.server.PlayerConnectMessage
 import pixformer.server.Server
@@ -42,7 +43,6 @@ class ServerManagerImpl : ServerManager {
     }
 
     override fun connectToServer() {
-        // client = Client(port = port).also { it.connect() }
         MessageToServer(PlayerConnectMessage).send(this)
     }
 
@@ -87,4 +87,9 @@ class ServerManagerImpl : ServerManager {
         server?.stop()
         alignmentThread?.interrupt()
     }
+
+    override fun modelInputMapper(): java.util.function.Function<CompleteModelInput, CompleteModelInput> =
+        java.util.function.Function {
+            ServerEventCompleteModelInputDecorator(it, this)
+        }
 }

@@ -4,6 +4,7 @@ import pixformer.model.Level
 import pixformer.model.LevelData
 import pixformer.model.entity.EntityFactory
 import pixformer.model.entity.dynamic.player.Player
+import pixformer.model.modelinput.CompleteModelInput
 
 /**
  * A bridge between controller and server to enable client-server communication.
@@ -28,4 +29,6 @@ interface ServerManager {
     fun startRealignmentRoutine(entityFactory: EntityFactory)
 
     fun disconnect()
+
+    fun modelInputMapper(): java.util.function.Function<CompleteModelInput, CompleteModelInput>
 }
