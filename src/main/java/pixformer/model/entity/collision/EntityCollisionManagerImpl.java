@@ -39,11 +39,13 @@ public class EntityCollisionManagerImpl implements EntityCollisionManager {
      * {@inheritDoc}
      */
     @Override
-    public Set<Collision> findCollisionsFor(final Entity entity) {
-        return Collections.unmodifiableSet(this.world.getEntities()).stream()
-                .filter(other -> entity != other)
-                .map(other -> this.getCollision(entity, other).map(side -> new Collision(other, side)))
-                .flatMap(Optional::stream)
-                .collect(Collectors.toUnmodifiableSet());
+    public synchronized Set<Collision> findCollisionsFor(final Entity entity) {
+        synchronized (this.world.getEntities()) {
+            return Collections.unmodifiableSet(this.world.getEntities()).stream()
+                    .filter(other -> entity != other)
+                    .map(other -> this.getCollision(entity, other).map(side -> new Collision(other, side)))
+                    .flatMap(Optional::stream)
+                    .collect(Collectors.toUnmodifiableSet());
+        }
     }
 }

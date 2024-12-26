@@ -117,12 +117,12 @@ public class LevelImpl implements Level {
         final Entity player = this.createPlayer(index, data.spawnPointX(), data.spawnPointY(), data.entityFactory());
         this.world.spawnEntity(player);
 
-        if (playable) {
-            player.getInputComponent().ifPresent(inputComponent -> {
-                final CompleteModelInput input = ModelInputAdapter.from(inputComponent);
+        player.getInputComponent().ifPresent(inputComponent -> {
+            final CompleteModelInput input = ModelInputAdapter.from(inputComponent);
+            if (playable) {
                 this.players.add(modelInputMapper.apply(input));
-            });
-        }
+            }
+        });
 
         return (Player) player;
     }

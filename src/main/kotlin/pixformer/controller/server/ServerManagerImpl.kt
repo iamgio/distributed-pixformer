@@ -91,14 +91,25 @@ class ServerManagerImpl : ServerManager {
     }
 
     override fun dispatch(command: Command) {
-        println("Dispatching command: $command on player index ${command.playerIndex}")
-
         if (command.playerIndex == playablePlayerIndex) return
 
-        val player = players[command.playerIndex] ?: return
-        val model = player.inputComponent.getOrNull() as? CompleteModelInput ?: return
+        println("Dispatching command: $command on player index ${command.playerIndex}")
 
-        command.execute(model)
+        val players =
+            levelSupplier()
+                ?.world
+                // ?.userControlledEntities TODO test if this works
+                ?.entities
+                ?.asSequence()
+                ?.filterIsInstance<Player>()
+                ?.onEach { println(it.index) }
+                ?.filter { player -> player.index == command.playerIndex }
+                ?: return
+
+        players.forEach { player ->
+            val model = player.inputComponent.getOrNull() as? CompleteModelInput ?: return
+            command.execute(model)
+        }
     }
 
     override fun modelInputMapper(): java.util.function.Function<CompleteModelInput, CompleteModelInput> =

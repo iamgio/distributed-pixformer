@@ -11,7 +11,6 @@ import io.ktor.server.response.respondText
 import io.ktor.server.routing.get
 import io.ktor.server.routing.routing
 import io.ktor.server.websocket.DefaultWebSocketServerSession
-import io.ktor.server.websocket.WebSocketServerSession
 import io.ktor.server.websocket.WebSockets
 import io.ktor.server.websocket.pingPeriod
 import io.ktor.server.websocket.webSocket
@@ -19,11 +18,12 @@ import io.ktor.websocket.Frame
 import io.ktor.websocket.readText
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import pixformer.controller.server.ServerManager
 import pixformer.controller.server.command.CommandSerializer
 import pixformer.serialization.LevelSerialization
-import java.util.Collections
 import kotlin.time.Duration.Companion.seconds
 
 /**
@@ -59,12 +59,12 @@ fun Application.ApplicationModule(manager: ServerManager) {
     }
 
     routing {
-        val sessions = Collections.synchronizedList<WebSocketServerSession>(ArrayList())
+        // Shared flow to broadcast messages to all connected clients.
+        val messageResponseFlow = MutableSharedFlow<Frame>()
+        val sharedFlow = messageResponseFlow.asSharedFlow()
 
         suspend fun broadcast(frame: Frame) {
-            for (session in sessions) {
-                session.send(frame)
-            }
+            messageResponseFlow.emit(frame)
         }
 
         suspend fun DefaultWebSocketServerSession.connect() {
@@ -76,7 +76,14 @@ fun Application.ApplicationModule(manager: ServerManager) {
             send(Frame.Text("$playerIndex"))
             manager.onPlayerConnect(playerIndex)
 
-            sessions.add(this)
+            // val job =
+            launch {
+                sharedFlow.collect { frame ->
+                    send(frame)
+                }
+            }
+
+            // sessions.add(this)
         }
 
         webSocket("/${Endpoints.WEBSOCKETS}") {
@@ -90,7 +97,7 @@ fun Application.ApplicationModule(manager: ServerManager) {
             for (frame in incoming) {
                 if (frame is Frame.Text) {
                     if (CommandSerializer.isCommand(frame.readText())) {
-                        println("broadcasting command ${frame.readText()}")
+                        println("Broadcasting command ${frame.readText()}")
                         broadcast(frame)
                     }
                 }
@@ -103,7 +110,7 @@ fun Application.ApplicationModule(manager: ServerManager) {
             val serialized = LevelSerialization.serialize(level)
             call.respondText(serialized)
 
-            println(LevelSerialization.serialize(level))
+            // println(LevelSerialization.serialize(level))
         }
     }
 }
