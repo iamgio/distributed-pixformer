@@ -11,14 +11,14 @@ import pixformer.model.modelinput.CompleteModelInput
  * A bridge between controller and server to enable client-server communication.
  */
 interface ServerManager {
-    val players: Map<Int, Player>
+    val players: MutableMap<Int, Player>
     var playablePlayerIndex: Int?
 
     val isLeader: Boolean
     val port: Int
 
+    val onRealign: (LevelData) -> Unit
     var onPlayerConnect: (Int) -> Unit
-    var onRealign: (LevelData) -> Unit
     var levelSupplier: () -> Level?
 
     fun startServer()

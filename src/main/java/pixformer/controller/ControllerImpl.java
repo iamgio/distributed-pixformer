@@ -9,7 +9,6 @@ import pixformer.controller.gameloop.GameLoop;
 import pixformer.controller.gameloop.GameLoopFactory;
 import pixformer.controller.level.LevelManager;
 import pixformer.controller.level.LevelManagerImpl;
-import pixformer.controller.realign.Realigner;
 import pixformer.controller.server.ServerManager;
 import pixformer.controller.server.ServerManagerImpl;
 import pixformer.model.Level;
@@ -108,14 +107,6 @@ public final class ControllerImpl implements Controller {
             this.getLevelManager().getCurrentLevel().ifPresent(level -> {
                 Player player = level.createPlayer(index, true, this.getServerManager().modelInputMapper());
                 this.getServerManager().getPlayers().put(index, player);
-            });
-            return Unit.INSTANCE;
-        });
-
-        final Realigner realigner = new Realigner(this.getServerManager());
-        this.getServerManager().setOnRealign(data -> {
-            this.getLevelManager().getCurrentLevel().ifPresent(level -> {
-                realigner.realign(data, level);
             });
             return Unit.INSTANCE;
         });

@@ -28,7 +28,7 @@ class Realigner(
             new.entities,
             {
                 // Filter to add
-                if (it is Block) return@replaceEntities true
+                if (it is Block) return@replaceEntities false
                 if (it is Player && it.index == manager.playablePlayerIndex) {
                     alignedPlayer = it
                     return@replaceEntities false

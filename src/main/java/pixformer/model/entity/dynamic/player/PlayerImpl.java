@@ -82,7 +82,7 @@ public class PlayerImpl extends AbstractPowerupableEntity implements Player {
      */
     @Override
     public Optional<InputComponent> getInputComponent() {
-        return Optional.of(inputComponent);
+        return Optional.ofNullable(inputComponent);
     }
 
     /**

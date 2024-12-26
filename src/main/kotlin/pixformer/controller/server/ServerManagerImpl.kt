@@ -4,6 +4,7 @@ import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.io.IOException
+import pixformer.controller.realign.Realigner
 import pixformer.controller.server.command.Command
 import pixformer.model.Level
 import pixformer.model.LevelData
@@ -27,6 +28,7 @@ private const val ALIGNMENT_INTERVAL = 1500
 class ServerManagerImpl : ServerManager {
     private var server: Server? = null
     private var alignmentThread: Thread? = null
+    private val realigner = Realigner(this)
 
     override val port: Int = PORT
     override val isLeader: Boolean
@@ -35,9 +37,17 @@ class ServerManagerImpl : ServerManager {
     override val players = mutableMapOf<Int, Player>()
     override var playablePlayerIndex: Int? = null
 
+    override val onRealign: (LevelData) -> Unit
     override var onPlayerConnect: (Int) -> Unit = {}
-    override var onRealign: (LevelData) -> Unit = {}
     override lateinit var levelSupplier: () -> Level?
+
+    init {
+        onRealign = { data ->
+            levelSupplier()?.let { level ->
+                realigner.realign(data, level)
+            }
+        }
+    }
 
     override fun startServer() {
         server = ServerImpl(this)
@@ -110,6 +120,11 @@ class ServerManagerImpl : ServerManager {
             val model = player.inputComponent.getOrNull() as? CompleteModelInput ?: return
             command.execute(model)
         }
+
+        /*val player = players[command.playerIndex] ?: return
+
+        val model = player.inputComponent.getOrNull() as? CompleteModelInput ?: return
+        command.execute(model)*/
     }
 
     override fun modelInputMapper(): java.util.function.Function<CompleteModelInput, CompleteModelInput> =
