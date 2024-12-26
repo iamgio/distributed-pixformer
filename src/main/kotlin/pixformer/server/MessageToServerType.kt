@@ -4,6 +4,7 @@ import io.ktor.client.plugins.websocket.DefaultClientWebSocketSession
 import io.ktor.websocket.Frame
 import io.ktor.websocket.readText
 import pixformer.controller.server.ServerManager
+import pixformer.controller.server.command.CommandSerializer
 
 /**
  * A type of message sent a client to the server as a WebSocket.
@@ -44,6 +45,14 @@ data object PlayerConnectMessage : MessageToServerType {
                 println("You were assigned player index $playerIndex")
             }
         }
+
+        for (frame in session.incoming) {
+            if (frame is Frame.Text) {
+                val text = frame.readText()
+                val command = CommandSerializer.deserialize(text) ?: continue
+                manager.dispatch(command)
+            }
+        }
     }
 }
 
@@ -56,9 +65,7 @@ data object PlayerMoveRightMessage : MessageToServerType {
     override suspend fun send(
         manager: ServerManager,
         session: DefaultClientWebSocketSession,
-    ) {
-        session.send(Frame.Text(""))
-    }
+    ) {}
 }
 
 /**
@@ -70,9 +77,7 @@ data object PlayerMoveLeftMessage : MessageToServerType {
     override suspend fun send(
         manager: ServerManager,
         session: DefaultClientWebSocketSession,
-    ) {
-        session.send(Frame.Text(""))
-    }
+    ) {}
 }
 
 /**
@@ -84,7 +89,5 @@ data object PlayerJumpMessage : MessageToServerType {
     override suspend fun send(
         manager: ServerManager,
         session: DefaultClientWebSocketSession,
-    ) {
-        session.send(Frame.Text(""))
-    }
+    ) {}
 }

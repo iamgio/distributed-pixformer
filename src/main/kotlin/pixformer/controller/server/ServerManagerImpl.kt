@@ -4,6 +4,7 @@ import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.io.IOException
+import pixformer.controller.server.command.Command
 import pixformer.model.Level
 import pixformer.model.LevelData
 import pixformer.model.entity.EntityFactory
@@ -14,6 +15,7 @@ import pixformer.server.PlayerConnectMessage
 import pixformer.server.Server
 import pixformer.server.ServerImpl
 import kotlin.concurrent.thread
+import kotlin.jvm.optionals.getOrNull
 
 // todo temporary. allow custom port
 const val PORT = 8082
@@ -86,6 +88,17 @@ class ServerManagerImpl : ServerManager {
         println("Disconnecting from server")
         server?.stop()
         alignmentThread?.interrupt()
+    }
+
+    override fun dispatch(command: Command) {
+        println("Dispatching command: $command on player index ${command.playerIndex}")
+
+        if (command.playerIndex == playablePlayerIndex) return
+
+        val player = players[command.playerIndex] ?: return
+        val model = player.inputComponent.getOrNull() as? CompleteModelInput ?: return
+
+        command.execute(model)
     }
 
     override fun modelInputMapper(): java.util.function.Function<CompleteModelInput, CompleteModelInput> =

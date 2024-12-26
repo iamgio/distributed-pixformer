@@ -5,6 +5,7 @@ package pixformer.server
  */
 object Endpoints {
     const val WEBSOCKETS = "ws"
+    const val CLIENT_SUBSCRIBE = "subscribe"
 
     const val REALIGN = "realign"
 }

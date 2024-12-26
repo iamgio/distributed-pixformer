@@ -1,5 +1,6 @@
 package pixformer.controller.server
 
+import pixformer.controller.server.command.Command
 import pixformer.model.Level
 import pixformer.model.LevelData
 import pixformer.model.entity.EntityFactory
@@ -29,6 +30,8 @@ interface ServerManager {
     fun startRealignmentRoutine(entityFactory: EntityFactory)
 
     fun disconnect()
+
+    fun dispatch(command: Command)
 
     fun modelInputMapper(): java.util.function.Function<CompleteModelInput, CompleteModelInput>
 }

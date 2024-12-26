@@ -23,7 +23,7 @@ class ServerEventCompleteModelInputDecorator(
         MessageToServer(PlayerMoveLeftMessage).send(serverManager)
     }
 
-// todo: - add other actions - broadcast events from leader too - fix realignment id pairing
+// todo: - add other actions - broadcast events to all clients (hard!!!)
     override fun jump() {
         modelInput.jump()
         MessageToServer(PlayerJumpMessage).send(serverManager)
