@@ -25,7 +25,6 @@ class ServerEventCompleteModelInputDecorator(
         MessageToServer(PlayerMoveLeftMessage).send(serverManager)
     }
 
-// todo: - add other actions - align player score
     override fun jump() {
         modelInput.jump()
         MessageToServer(PlayerJumpMessage).send(serverManager)
