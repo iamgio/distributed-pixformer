@@ -129,7 +129,9 @@ public class PlayerInputComponent extends UserInputComponent implements Complete
         }
 
         if (isJumping() && !jumpKey) {
-            stopJumping = true;
+            // Commenting this line causes double jump to work, although it's not intended.
+            // However, the distributed version requires this to enable long jumps.
+            // stopJumping = true;
         }
 
         // Player speed limit and sprint management
