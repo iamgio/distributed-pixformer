@@ -110,6 +110,9 @@ public class LevelImpl implements Level {
     @Override
     public void init() {
         this.data.entities().forEach(this.world::spawnEntity);
+        if (this.data.scores() != null) {
+            this.world.getScoreManager().setAllScores(this.data.scores());
+        }
     }
 
     @Override

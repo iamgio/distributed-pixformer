@@ -6,6 +6,7 @@ import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
 import pixformer.controller.deserialization.level.macro.EntityMacro;
 import pixformer.controller.deserialization.level.macro.FillMacro;
 import pixformer.controller.deserialization.level.macro.NoMacro;
@@ -13,6 +14,7 @@ import pixformer.controller.deserialization.level.macro.TranslateMacro;
 import pixformer.model.LevelData;
 import pixformer.model.entity.Entity;
 import pixformer.model.entity.EntityFactory;
+import pixformer.model.score.Score;
 import pixformer.serialization.DeserializeStateUpdaterEntityVisitor;
 
 import java.io.InputStream;
@@ -20,6 +22,7 @@ import java.io.InputStreamReader;
 import java.lang.reflect.Type;
 import java.nio.charset.Charset;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 
@@ -61,6 +64,9 @@ public class JsonLevelDataDeserializer implements LevelDataDeserializer, JsonDes
         final int spawnPointX = object.get("spawnPointX").getAsInt();
         final int spawnPointY = object.get("spawnPointY").getAsInt();
 
+        final Type scoresType = new TypeToken<Map<Integer, Score>>() {}.getType();
+        final Map<Integer, Score> scores = new Gson().fromJson(object.get("scores"), scoresType);
+
         final EntityFactoryLookupDecorator lookup = new EntityFactoryLookupDecorator(this.factory);
         final Set<Entity> entities = new HashSet<>();
 
@@ -68,7 +74,7 @@ public class JsonLevelDataDeserializer implements LevelDataDeserializer, JsonDes
             this.appendEntity(entities, entityElement.getAsJsonObject(), lookup);
         }
 
-        return new LevelData(name, factory, entities, spawnPointX, spawnPointY);
+        return new LevelData(name, factory, entities, spawnPointX, spawnPointY, scores);
     }
 
     private void appendEntity(final Set<Entity> entities, final JsonObject json, final EntityFactoryLookupDecorator lookup) {

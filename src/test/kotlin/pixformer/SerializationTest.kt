@@ -9,6 +9,7 @@ import pixformer.model.entity.MutableEntity
 import pixformer.model.entity.dynamic.enemy.goomba.Goomba
 import pixformer.model.entity.dynamic.player.Player
 import pixformer.model.entity.statics.surprise.Surprise
+import pixformer.model.score.Score
 import pixformer.serialization.LevelSerialization
 import pixformer.view.entity.NullGraphicsComponentFactory
 import kotlin.jvm.optionals.getOrNull
@@ -33,13 +34,13 @@ class SerializationTest {
                 },
             )
 
-        val level = LevelImpl(LevelData("test", entityFactory, entities, 3, 0))
+        val level = LevelImpl(LevelData("test", entityFactory, entities, 3, 0, emptyMap()))
         level.init()
 
         val json = LevelSerialization.serialize(level)
         assertEquals(
             """
-            {"name":"test","spawnPointX":3,"spawnPointY":0,"entities":[{"type":"goomba","x":2.0,"y":1.0,"velocity":{"x":3.2,"y":1.0}}]}
+            {"name":"test","spawnPointX":3,"spawnPointY":0,"scores":{},"entities":[{"type":"goomba","x":2.0,"y":1.0,"velocity":{"x":3.2,"y":1.0}}]}
             """.trimIndent(),
             json,
         )
@@ -66,13 +67,13 @@ class SerializationTest {
                 },
             )
 
-        val level = LevelImpl(LevelData("test", entityFactory, entities, 3, 0))
+        val level = LevelImpl(LevelData("test", entityFactory, entities, 3, 0, emptyMap()))
         level.init()
 
         val json = LevelSerialization.serialize(level)
         assertEquals(
             """
-            {"name":"test","spawnPointX":3,"spawnPointY":0,"entities":[{"type":"surprise","x":0.0,"y":1.0,"velocity":{"x":0.0,"y":0.0},"hasCollided":true}]}
+            {"name":"test","spawnPointX":3,"spawnPointY":0,"scores":{},"entities":[{"type":"surprise","x":0.0,"y":1.0,"velocity":{"x":0.0,"y":0.0},"hasCollided":true}]}
             """.trimIndent(),
             json,
         )
@@ -91,14 +92,16 @@ class SerializationTest {
 
     @Test
     fun playerSerialization() {
-        val level = LevelImpl(LevelData("test", entityFactory, emptySet(), 5, 2))
+        val scores = mapOf(1 to Score(2, 10), 3 to Score(5, 20))
+
+        val level = LevelImpl(LevelData("test", entityFactory, emptySet(), 5, 2, scores))
         level.init()
         level.createPlayer(3, true) { it }
 
         val json = LevelSerialization.serialize(level)
         assertEquals(
             """
-            {"name":"test","spawnPointX":5,"spawnPointY":2,"entities":[{"type":"player","x":5.0,"y":2.0,"velocity":{"x":0.0,"y":0.0},"playerIndex":3,"powerup":null}]}
+            {"name":"test","spawnPointX":5,"spawnPointY":2,"scores":{"1":{"points":2,"coinsNumber":10},"3":{"points":5,"coinsNumber":20}},"entities":[{"type":"player","x":5.0,"y":2.0,"velocity":{"x":0.0,"y":0.0},"playerIndex":3,"powerup":null}]}
             """.trimIndent(),
             json,
         )
@@ -114,5 +117,11 @@ class SerializationTest {
         assertEquals(5.0, first.x)
         assertEquals(3, first.index)
         assertEquals(null, first.powerup.behaviour.getOrNull())
+
+        assertEquals(2, deserialized.scores.size)
+        assertEquals(2, deserialized.scores[1]?.points)
+        assertEquals(10, deserialized.scores[1]?.coinsNumber)
+        assertEquals(5, deserialized.scores[3]?.points)
+        assertEquals(20, deserialized.scores[3]?.coinsNumber)
     }
 }

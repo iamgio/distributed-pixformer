@@ -7,7 +7,6 @@ import pixformer.model.event.EventSubscriber;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -17,7 +16,7 @@ import java.util.Set;
 public class ScoreManagerImpl implements ScoreManager {
     private static final int DEFAULT_SCORE_INCREMENT = 100;
     private static final int POLE_POINTS_INCREMENT = 1_000;
-    private final Map<Entity, Score> scoreMap;
+    private final Map<Integer, Score> scoreMap;
     private final Set<Entity> winners;
 
     /**
@@ -37,17 +36,18 @@ public class ScoreManagerImpl implements ScoreManager {
      * @param entity entity killed
      */
     private void increaseScore(final Entity player, final Entity entity) {
-        if (player instanceof Player) {
+        if (player instanceof Player p) {
+            final int index = p.getIndex();
             // Choosing the quantity of points to assign at the player, depending on what the player hit
             // a generic entity or the pole, in the second case we pass the player itself as the killed
             final int points = !entity.equals(player) ? DEFAULT_SCORE_INCREMENT : POLE_POINTS_INCREMENT / winners.size();
-            if (scoreMap.containsKey(player)) {
-                scoreMap.put(player, scoreMap.get(player).copyAddPoints(points));
+            if (scoreMap.containsKey(index)) {
+                scoreMap.put(index, scoreMap.get(index).copyAddPoints(points));
             } else {
-                scoreMap.put(player, new Score(points, 0));
+                scoreMap.put(index, new Score(points, 0));
             }
             if (entity instanceof Coin) {
-                scoreMap.put(player, scoreMap.get(player).copyAddCoins(1));
+                scoreMap.put(index, scoreMap.get(index).copyAddCoins(1));
             }
         }
     }
@@ -56,27 +56,25 @@ public class ScoreManagerImpl implements ScoreManager {
      * {@inheritDoc}
      */
     @Override
-    public Score getScore(final Entity entity) {
-        return this.scoreMap.getOrDefault(entity, new Score(0, 0));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public Score getScoreByIndex(final int playerIndex) {
-        return scoreMap.entrySet().stream()
-                .filter(entry -> entry.getKey() instanceof Player player && player.getIndex() == playerIndex)
-                .map(Map.Entry::getValue)
-                .findAny().orElse(new Score(0, 0));
+        return scoreMap.getOrDefault(playerIndex, new Score(0, 0));
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public List<Score> getAllScores() {
-        return this.scoreMap.values().stream().toList();
+    public Map<Integer, Score> getAllScores() {
+        return Map.copyOf(scoreMap);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setAllScores(Map<Integer, Score> scores) {
+        this.scoreMap.clear();
+        this.scoreMap.putAll(scores);
     }
 
     /**

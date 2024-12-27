@@ -1,19 +1,21 @@
 package pixformer.model.score;
 
 import pixformer.model.entity.Entity;
+import pixformer.model.entity.dynamic.player.Player;
 
-import java.util.List;
+import java.util.Map;
 
 /**
  * Class to manage multiple {@link Score} for multiple player.
  */
 public interface ScoreManager {
-
     /**
-     * @param entity entity to see the score
-     * @return the score of a specific player
+     * @param player player to get the score
+     * @return the score of the player
      */
-    Score getScore(Entity entity);
+    default Score getScore(Player player) {
+        return getScoreByIndex(player.getIndex());
+    }
 
     /**
      * @param playerIndex index of the player
@@ -22,9 +24,15 @@ public interface ScoreManager {
     Score getScoreByIndex(int playerIndex);
 
     /**
-     * @return a list containing the scores of each player
+     * @return the scores of each player, with the player index as key
      */
-    List<Score> getAllScores();
+    Map<Integer, Score> getAllScores();
+
+    /**
+     * Sets all the scores of the players.
+     * @param scores map of the scores of the players with the player index as key
+     */
+    void setAllScores(Map<Integer, Score> scores);
 
     /**
      * @return the remaining coins in the game

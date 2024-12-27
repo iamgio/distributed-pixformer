@@ -5,9 +5,9 @@ import org.junit.jupiter.api.Test;
 import pixformer.model.World;
 import pixformer.model.WorldImpl;
 import pixformer.model.WorldOptionsFactory;
-import pixformer.model.entity.Entity;
 import pixformer.model.entity.EntityFactory;
 import pixformer.model.entity.EntityFactoryImpl;
+import pixformer.model.entity.dynamic.player.Player;
 import pixformer.model.entity.dynamic.player.PlayerImpl;
 import pixformer.view.entity.NullGraphicsComponentFactory;
 
@@ -24,9 +24,9 @@ final class ScoreTest {
     private static final int BASE_X = 10;
     private final World world = new WorldImpl(WorldOptionsFactory.testOptions());
     private final EntityFactory entityFactory = new EntityFactoryImpl(new NullGraphicsComponentFactory(), world);
-    private Entity a;
-    private Entity b;
-    private Entity c;
+    private Player a;
+    private Player b;
+    private Player c;
     private int score;
 
     @BeforeEach

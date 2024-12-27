@@ -56,5 +56,8 @@ class Realigner(
                 it.setPowerup(aligned.powerup.behaviour.getOrNull())
             }
         }
+
+        // Update the player scores.
+        current.world.scoreManager.allScores = new.scores
     }
 }
