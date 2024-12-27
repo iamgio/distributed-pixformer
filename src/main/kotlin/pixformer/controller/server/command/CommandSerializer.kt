@@ -26,6 +26,8 @@ class CommandSerializer {
                 EventType.PLAYER_MOVE_RIGHT -> MoveRightCommand(playerIndex)
                 EventType.PLAYER_MOVE_LEFT -> MoveLeftCommand(playerIndex)
                 EventType.PLAYER_JUMP -> JumpCommand(playerIndex)
+                EventType.PLAYER_SPRINT -> SprintCommand(playerIndex)
+                EventType.PLAYER_ABILITY -> AbilityCommand(playerIndex)
                 else -> null
             }
         }

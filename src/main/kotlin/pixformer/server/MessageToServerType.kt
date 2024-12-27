@@ -23,7 +23,7 @@ sealed interface MessageToServerType {
     suspend fun send(
         manager: ServerManager,
         session: DefaultClientWebSocketSession,
-    )
+    ) {}
 }
 
 /**
@@ -61,11 +61,6 @@ data object PlayerConnectMessage : MessageToServerType {
  */
 data object PlayerMoveRightMessage : MessageToServerType {
     override val name = EventType.PLAYER_MOVE_RIGHT
-
-    override suspend fun send(
-        manager: ServerManager,
-        session: DefaultClientWebSocketSession,
-    ) {}
 }
 
 /**
@@ -73,11 +68,6 @@ data object PlayerMoveRightMessage : MessageToServerType {
  */
 data object PlayerMoveLeftMessage : MessageToServerType {
     override val name = EventType.PLAYER_MOVE_LEFT
-
-    override suspend fun send(
-        manager: ServerManager,
-        session: DefaultClientWebSocketSession,
-    ) {}
 }
 
 /**
@@ -85,9 +75,18 @@ data object PlayerMoveLeftMessage : MessageToServerType {
  */
 data object PlayerJumpMessage : MessageToServerType {
     override val name = EventType.PLAYER_JUMP
+}
 
-    override suspend fun send(
-        manager: ServerManager,
-        session: DefaultClientWebSocketSession,
-    ) {}
+/**
+ * A message sent from the client to the server to let the player sprint.
+ */
+data object PlayerSprintMessage : MessageToServerType {
+    override val name = EventType.PLAYER_SPRINT
+}
+
+/**
+ * A message sent from the client to the server to let the player use an ability.
+ */
+data object PlayerAbilityMessage : MessageToServerType {
+    override val name = EventType.PLAYER_ABILITY
 }

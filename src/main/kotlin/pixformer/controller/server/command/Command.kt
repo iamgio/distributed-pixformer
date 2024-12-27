@@ -34,3 +34,19 @@ class JumpCommand(
         model.jump()
     }
 }
+
+class SprintCommand(
+    playerIndex: Int,
+) : Command(playerIndex) {
+    override fun execute(model: CompleteModelInput) {
+        model.sprint()
+    }
+}
+
+class AbilityCommand(
+    playerIndex: Int,
+) : Command(playerIndex) {
+    override fun execute(model: CompleteModelInput) {
+        model.ability()
+    }
+}

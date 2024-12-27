@@ -18,4 +18,6 @@ object EventType {
     const val PLAYER_MOVE_RIGHT = "right"
     const val PLAYER_MOVE_LEFT = "left"
     const val PLAYER_JUMP = "jump"
+    const val PLAYER_SPRINT = "sprint"
+    const val PLAYER_ABILITY = "ability"
 }
