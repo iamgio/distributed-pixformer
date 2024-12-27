@@ -62,10 +62,7 @@ class SerializeEntityVisitor : EntityVisitor<JsonObject> {
 
     override fun visit(goomba: Goomba) = serialize("goomba", goomba)
 
-    override fun visit(koopa: Koopa) =
-        serialize("koopa", koopa) {
-            put("state", if (koopa.isWalking) "walking" else "shell")
-        }
+    override fun visit(koopa: Koopa) = serialize(if (koopa.isWalking) "koopa" else "turtle_koopa", koopa)
 
     override fun visit(player: Player) =
         serialize("player", player) {

@@ -48,10 +48,7 @@ class DeserializeStateUpdaterEntityVisitor(
 
     override fun visit(goomba: Goomba) = updateCommonProperties(goomba)
 
-    override fun visit(koopa: Koopa) =
-        updateCommonProperties(koopa).also {
-            // todo set state
-        }
+    override fun visit(koopa: Koopa) = updateCommonProperties(koopa)
 
     override fun visit(player: Player) =
         updateCommonProperties(player).also {

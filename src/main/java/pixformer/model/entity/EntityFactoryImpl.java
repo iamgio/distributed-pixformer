@@ -116,9 +116,10 @@ public class EntityFactoryImpl implements EntityFactory, PowerUpFactory, TurtleK
     /**
      * {@inheritDoc}
      */
+    @EntityType("turtle_koopa")
     @Override
-    public Entity createTurtleKoopa(final double x, final double y, final Entity shooter) {
-        return new TurtleKoopa(x, y, shooter, removeEntityFromWorld, graphicsComponentFactory::turtleKoopa);
+    public Entity createTurtleKoopa(final double x, final double y) {
+        return new TurtleKoopa(x, y, null, removeEntityFromWorld, graphicsComponentFactory::turtleKoopa);
     }
 
     /**
@@ -129,7 +130,7 @@ public class EntityFactoryImpl implements EntityFactory, PowerUpFactory, TurtleK
     public Entity createKoopa(final int x, final int y) {
         return new WalkingKoopa(
                 x, y,
-                (xx, yy, shooter) -> addEntityToWorld.accept(createTurtleKoopa(xx, yy, shooter)),
+                (xx, yy, shooter) -> addEntityToWorld.accept(createTurtleKoopa(xx, yy)),
                 removeEntityFromWorld,
                 graphicsComponentFactory::walkingKoopa
         );
