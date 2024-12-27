@@ -59,7 +59,7 @@ public final class GameLoopFactory {
 
             // Game over check
             if (initialized && playersEntities.stream().map(Entity::getWorld).allMatch(Optional::isEmpty)) {
-                //this.controller.getLevelManager().endCurrentLevel();
+                this.controller.getLevelManager().endCurrentLevel();
             }
 
             final double cameraPivotX = this.controller.calcEntitiesCommonPointX(playersEntities);
