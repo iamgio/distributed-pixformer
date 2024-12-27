@@ -22,7 +22,7 @@ import kotlin.jvm.optionals.getOrNull
 // todo temporary. allow custom port
 const val PORT = 8082
 
-private const val ALIGNMENT_INTERVAL = 1500
+private const val ALIGNMENT_INTERVAL = 3000
 
 @Suppress("DeferredResultUnused")
 @OptIn(DelicateCoroutinesApi::class)
