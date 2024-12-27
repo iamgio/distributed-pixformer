@@ -5,6 +5,7 @@ import pixformer.model.Level
 import pixformer.model.LevelData
 import pixformer.model.entity.dynamic.player.Player
 import pixformer.model.entity.statics.Block
+import kotlin.jvm.optionals.getOrNull
 
 /**
  *
@@ -52,6 +53,7 @@ class Realigner(
             player?.let {
                 it.x = aligned.x
                 it.y = aligned.y
+                it.setPowerup(aligned.powerup.behaviour.getOrNull())
             }
         }
     }

@@ -1,9 +1,9 @@
 package pixformer.model.entity.powerup;
 
-import java.util.Optional;
-
 import pixformer.model.entity.AbstractEntity;
 import pixformer.model.entity.powerup.powerups.Mushroom;
+
+import java.util.Optional;
 
 /**
  * A base class for entity who can interact with powerups.
@@ -27,6 +27,10 @@ public abstract class AbstractPowerupableEntity extends AbstractEntity implement
      */
     @Override
     public void setPowerup(final PowerupBehaviour powerupBehaviour) {
+        if (powerupBehaviour == null) {
+            powerup = new PowerUp();
+            return;
+        }
 
         if (getPowerupBehaviour().isEmpty()) {
             if (powerupBehaviour.getPriority() > 1) {
