@@ -13,6 +13,7 @@ import io.ktor.server.routing.routing
 import io.ktor.server.websocket.DefaultWebSocketServerSession
 import io.ktor.server.websocket.WebSockets
 import io.ktor.server.websocket.pingPeriod
+import io.ktor.server.websocket.timeout
 import io.ktor.server.websocket.webSocket
 import io.ktor.websocket.Frame
 import io.ktor.websocket.readText
@@ -46,9 +47,10 @@ class ServerImpl(
 @Suppress("FunctionName")
 fun Application.ApplicationModule(manager: ServerManager) {
     install(WebSockets) {
-        pingPeriod = 1.seconds
-        timeoutMillis = Long.MAX_VALUE
+        pingPeriod = 10.seconds
+        timeout = 100.seconds
         maxFrameSize = Long.MAX_VALUE
+        masking = false
     }
 
     monitor.subscribe(ApplicationStarted) {
@@ -60,14 +62,16 @@ fun Application.ApplicationModule(manager: ServerManager) {
 
     routing {
         // Shared flow to broadcast messages to all connected clients.
-        val messageResponseFlow = MutableSharedFlow<Frame>()
+        val messageResponseFlow = MutableSharedFlow<String>()
         val sharedFlow = messageResponseFlow.asSharedFlow()
 
-        suspend fun broadcast(frame: Frame) {
-            messageResponseFlow.emit(frame)
+        suspend fun broadcast(text: String) {
+            messageResponseFlow.emit(text)
         }
 
         suspend fun DefaultWebSocketServerSession.connect() {
+            // sessions.add(this)
+
             val playerIndex =
                 manager.players.keys
                     .maxOrNull()
@@ -76,14 +80,11 @@ fun Application.ApplicationModule(manager: ServerManager) {
             send(Frame.Text("$playerIndex"))
             manager.onPlayerConnect(playerIndex)
 
-            // val job =
             launch {
-                sharedFlow.collect { frame ->
-                    send(frame)
+                sharedFlow.collect { text ->
+                    outgoing.send(Frame.Text(text))
                 }
             }
-
-            // sessions.add(this)
         }
 
         webSocket("/${Endpoints.WEBSOCKETS}") {
@@ -96,9 +97,10 @@ fun Application.ApplicationModule(manager: ServerManager) {
 
             for (frame in incoming) {
                 if (frame is Frame.Text) {
-                    if (CommandSerializer.isCommand(frame.readText())) {
-                        println("Broadcasting command ${frame.readText()}")
-                        broadcast(frame)
+                    val text = frame.readText()
+                    if (CommandSerializer.isCommand(text)) {
+                        println("Broadcasting command $text")
+                        broadcast(text)
                     }
                 }
             }

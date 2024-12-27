@@ -1,5 +1,6 @@
 package pixformer.controller.server
 
+import io.ktor.client.plugins.websocket.DefaultClientWebSocketSession
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
@@ -36,6 +37,8 @@ class ServerManagerImpl : ServerManager {
 
     override val players = mutableMapOf<Int, Player>()
     override var playablePlayerIndex: Int? = null
+
+    override var session: DefaultClientWebSocketSession? = null
 
     override val onRealign: (LevelData) -> Unit
     override var onPlayerConnect: (Int) -> Unit = {}
@@ -105,26 +108,10 @@ class ServerManagerImpl : ServerManager {
 
         println("Dispatching command: $command on player index ${command.playerIndex}")
 
-        val players =
-            levelSupplier()
-                ?.world
-                // ?.userControlledEntities TODO test if this works
-                ?.entities
-                ?.asSequence()
-                ?.filterIsInstance<Player>()
-                ?.onEach { println(it.index) }
-                ?.filter { player -> player.index == command.playerIndex }
-                ?: return
-
-        players.forEach { player ->
-            val model = player.inputComponent.getOrNull() as? CompleteModelInput ?: return
-            command.execute(model)
-        }
-
-        /*val player = players[command.playerIndex] ?: return
+        val player = players[command.playerIndex] ?: return
 
         val model = player.inputComponent.getOrNull() as? CompleteModelInput ?: return
-        command.execute(model)*/
+        command.execute(model)
     }
 
     override fun modelInputMapper(): java.util.function.Function<CompleteModelInput, CompleteModelInput> =

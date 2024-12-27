@@ -29,9 +29,12 @@ class Realigner(
             {
                 // Filter to add
                 if (it is Block) return@replaceEntities false
-                if (it is Player && it.index == manager.playablePlayerIndex) {
-                    alignedPlayer = it
-                    return@replaceEntities false
+                if (it is Player) {
+                    manager.players[it.index] = it
+                    if (it.index == manager.playablePlayerIndex) {
+                        alignedPlayer = it
+                        return@replaceEntities false
+                    }
                 }
                 true
             },

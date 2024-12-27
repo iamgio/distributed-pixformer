@@ -6,7 +6,8 @@ package pixformer.server
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
 import io.ktor.client.plugins.websocket.WebSockets
-import io.ktor.client.plugins.websocket.webSocket
+import io.ktor.client.plugins.websocket.webSocketSession
+import io.ktor.client.request.url
 import io.ktor.websocket.Frame
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -34,9 +35,19 @@ data class MessageToServer(
                     install(WebSockets)
                 }
 
-            client.webSocket("ws://localhost:${manager.port}/$endpoint?type=${type.name}") {
+            if (manager.session == null) {
+                // Session set up.
+                val session =
+                    client.webSocketSession {
+                        url("ws://localhost:${manager.port}/$endpoint?type=${type.name}")
+                    }
+
+                manager.session = session
+            }
+
+            with(manager.session!!) {
                 if (manager.playablePlayerIndex != null) {
-                    send(Frame.Text(CommandSerializer.serialize(manager.playablePlayerIndex!!, type.name)))
+                    outgoing.send(Frame.Text(CommandSerializer.serialize(manager.playablePlayerIndex!!, type.name)))
                 } else {
                     System.err.println("Player index is not assigned")
                 }

@@ -1,5 +1,6 @@
 package pixformer.controller.server
 
+import io.ktor.client.plugins.websocket.DefaultClientWebSocketSession
 import pixformer.controller.server.command.Command
 import pixformer.model.Level
 import pixformer.model.LevelData
@@ -13,6 +14,8 @@ import pixformer.model.modelinput.CompleteModelInput
 interface ServerManager {
     val players: MutableMap<Int, Player>
     var playablePlayerIndex: Int?
+
+    var session: DefaultClientWebSocketSession?
 
     val isLeader: Boolean
     val port: Int
