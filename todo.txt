@@ -2,3 +2,4 @@
 - Start new server on level start
 - Text or color to distinguish player
 - CLI chat?
+- Handle disconnections
