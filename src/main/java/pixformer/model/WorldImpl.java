@@ -9,12 +9,7 @@ import pixformer.model.input.UserInputComponent;
 import pixformer.model.score.ScoreManager;
 import pixformer.model.score.ScoreManagerImpl;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -215,10 +210,10 @@ public class WorldImpl implements World {
                 .collect(Collectors.toSet());
 
         this.entities.removeAll(toRemove);
-        //this.entities.addAll(toAdd);
 
-        toAdd.forEach(this::queueEntitySpawn);
-        //toRemove.forEach(this::queueEntityDrop);
+        // Swap the commented line in case of unexpected behavior. Platform-specific appearantly.
+        this.entities.addAll(toAdd);
+        //toAdd.forEach(this::queueEntitySpawn);
 
         this.lazyUserControlledEntity = null;
     }
