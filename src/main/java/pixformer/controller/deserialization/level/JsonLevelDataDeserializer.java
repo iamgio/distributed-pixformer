@@ -1,11 +1,6 @@
 package pixformer.controller.deserialization.level;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import pixformer.controller.deserialization.level.macro.EntityMacro;
 import pixformer.controller.deserialization.level.macro.FillMacro;
@@ -71,7 +66,11 @@ public class JsonLevelDataDeserializer implements LevelDataDeserializer, JsonDes
         final Set<Entity> entities = new HashSet<>();
 
         for (final JsonElement entityElement : object.get("entities").getAsJsonArray()) {
-            this.appendEntity(entities, entityElement.getAsJsonObject(), lookup);
+            final JsonObject entityObject = entityElement.getAsJsonObject();
+            if (entityObject.has("ignored") && entityObject.get("ignored").getAsBoolean()) {
+                continue;
+            }
+            this.appendEntity(entities, entityObject, lookup);
         }
 
         return new LevelData(name, factory, entities, spawnPointX, spawnPointY, scores);

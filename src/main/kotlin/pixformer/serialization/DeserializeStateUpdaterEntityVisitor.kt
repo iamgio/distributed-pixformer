@@ -63,7 +63,7 @@ class DeserializeStateUpdaterEntityVisitor(
             }
         }
 
-    override fun visit(fireball: Fireball) = updateCommonProperties(fireball)
+    override fun visit(fireball: Fireball) {}
 
     override fun visit(powerup: AbstractPhysicalPowerup) = updateCommonProperties(powerup)
 }

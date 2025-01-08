@@ -45,6 +45,8 @@ class SerializeEntityVisitor : EntityVisitor<JsonObject> {
         block()
     }
 
+    private fun ignore() = buildJsonObject { put("ignored", true) }
+
     override fun visit(block: Block) = serialize("block", block)
 
     override fun visit(brick: Brick) = serialize("brick", brick)
@@ -76,7 +78,7 @@ class SerializeEntityVisitor : EntityVisitor<JsonObject> {
             )
         }
 
-    override fun visit(fireball: Fireball) = serialize("fireball", fireball)
+    override fun visit(fireball: Fireball) = ignore()
 
     override fun visit(powerup: AbstractPhysicalPowerup) =
         serialize(
