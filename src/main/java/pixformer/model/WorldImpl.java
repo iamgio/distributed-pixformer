@@ -86,6 +86,7 @@ public class WorldImpl implements World {
 
         return this.getEntities().stream()
                 .filter(entity ->
+                        entity instanceof Player ||
                         getUserControlledEntities().stream()
                                 .anyMatch(player -> entity.getDistanceFrom(player) < this.options.updateRange())
                 );
@@ -201,20 +202,19 @@ public class WorldImpl implements World {
 
     @Override
     public void replaceEntities(final Set<Entity> entities, final Predicate<Entity> filterToAdd, final Predicate<Entity> filterToRemove) {
-        final Set<Entity> toRemove = this.entities.stream()
-                .filter(filterToRemove)
-                .collect(Collectors.toSet());
+        this.commandQueue.add(() -> {
+            // To remove.
+            this.entities.stream()
+                    .filter(filterToRemove)
+                    .collect(Collectors.toSet())
+                    .forEach(this.entities::remove);
 
-        final Set<Entity> toAdd = entities.stream()
-                .filter(filterToAdd)
-                .collect(Collectors.toSet());
+            // To add.
+            entities.stream()
+                    .filter(filterToAdd)
+                    .forEach(this::spawnEntity);
 
-        this.entities.removeAll(toRemove);
-
-        // Swap the commented line in case of unexpected behavior. Platform-specific appearantly.
-        this.entities.addAll(toAdd);
-        //toAdd.forEach(this::queueEntitySpawn);
-
-        this.lazyUserControlledEntity = null;
+            this.lazyUserControlledEntity = null;
+        });
     }
 }
