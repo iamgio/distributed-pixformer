@@ -40,8 +40,8 @@ class SerializeEntityVisitor : EntityVisitor<JsonObject> {
                 put("y", entity.velocity.y)
             },
         )
-        // put("width", entity.width)
-        // put("height", entity.height)
+        put("width", entity.width)
+        put("height", entity.height)
         block()
     }
 

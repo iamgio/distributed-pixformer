@@ -29,6 +29,8 @@ class DeserializeStateUpdaterEntityVisitor(
         json["velocity"]?.asJsonObject?.let { velocity ->
             entity.velocity = Vector2D(velocity["x"]!!.asDouble, velocity["y"]!!.asDouble)
         }
+        json["width"]?.asDouble?.let { entity.width = it }
+        json["height"]?.asDouble?.let { entity.height = it }
     }
 
     override fun visit(block: Block) = updateCommonProperties(block)
