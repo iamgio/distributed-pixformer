@@ -20,8 +20,11 @@ class Realigner(
         new: LevelData,
         current: Level,
     ) {
-        // The player entity received from the server
-        var alignedPlayer: Player? = null
+        // Create the player entity if it does not exist.
+        if (player == null) {
+            player =
+                current.createPlayer(manager.playablePlayerIndex!!, true, manager.modelInputMapper())
+        }
 
         // Replace all entities in the world with the new entities,
         // except for the player entity which is not replaced but rather updated.
@@ -33,7 +36,10 @@ class Realigner(
                 if (it is Player) {
                     manager.players[it.index] = it
                     if (it.index == manager.playablePlayerIndex) {
-                        alignedPlayer = it
+                        // Update the player entity with the player state received from the server.
+                        if (player != null) {
+                            realignPlayer(it)
+                        }
                         return@replaceEntities false
                     }
                 }
@@ -42,22 +48,16 @@ class Realigner(
             { it !is Block && (it !is Player || it.index != manager.playablePlayerIndex) }, // Filter to remove
         )
 
-        // Create the player entity if it does not exist.
-        if (player == null) {
-            player =
-                current.createPlayer(manager.playablePlayerIndex!!, true, manager.modelInputMapper())
-        }
-
-        // Update the player entity with the player state received from the server.
-        alignedPlayer?.let { aligned ->
-            player?.let {
-                it.x = aligned.x
-                it.y = aligned.y
-                it.setPowerup(aligned.powerup.behaviour.getOrNull())
-            }
-        }
-
         // Update the player scores.
         current.world.scoreManager.allScores = new.scores
+    }
+
+    private fun realignPlayer(
+        new: Player,
+        current: Player = player!!,
+    ) {
+        current.x = new.x
+        current.y = new.y
+        current.setPowerup(new.powerup.behaviour.getOrNull())
     }
 }
