@@ -2,6 +2,8 @@ package pixformer.controller;
 
 import kotlin.Unit;
 import pixformer.common.file.FileUtils;
+import pixformer.common.wrap.ObservableWritableWrapper;
+import pixformer.common.wrap.SimpleObservableWritableWrapper;
 import pixformer.common.wrap.SimpleWrapper;
 import pixformer.common.wrap.Wrapper;
 import pixformer.controller.deserialization.level.JsonLevelDataDeserializer;
@@ -11,11 +13,7 @@ import pixformer.controller.level.LevelManager;
 import pixformer.controller.level.LevelManagerImpl;
 import pixformer.controller.server.ServerManager;
 import pixformer.controller.server.ServerManagerImpl;
-import pixformer.model.Level;
-import pixformer.model.World;
-import pixformer.model.WorldAcceptingLevel;
-import pixformer.model.WorldImpl;
-import pixformer.model.WorldOptionsFactory;
+import pixformer.model.*;
 import pixformer.model.entity.Entity;
 import pixformer.model.entity.EntityFactoryImpl;
 import pixformer.model.entity.GraphicsComponentFactory;
@@ -42,7 +40,7 @@ public final class ControllerImpl implements Controller {
     private static final int MAX_PLAYERS_AMOUNT = 4;
 
     private final Wrapper<LevelManager> levelManager;
-    private final Wrapper<ServerManager> serverManager;
+    private final ObservableWritableWrapper<ServerManager> serverManager;
     private final Wrapper<GameLoopManager> gameLoopManager;
     private final GraphicsComponentFactory graphicsComponentFactory;
 
@@ -56,9 +54,12 @@ public final class ControllerImpl implements Controller {
                           final GameLoopManager gameLoopManager,
                           final GraphicsComponentFactory graphicsComponentFactory) {
         this.levelManager = new SimpleWrapper<>(levelManager);
-        this.serverManager = new SimpleWrapper<>(serverManager);
+        this.serverManager = new SimpleObservableWritableWrapper<>();
         this.gameLoopManager = new SimpleWrapper<>(gameLoopManager);
         this.graphicsComponentFactory = graphicsComponentFactory;
+
+        this.serverManager.addOnChange(this::setupServerConnectionActions);
+        this.serverManager.set(serverManager);
     }
 
     /**
@@ -80,8 +81,12 @@ public final class ControllerImpl implements Controller {
         }
 
         this.setupLevelChangeActions();
-        this.setupServerConnectionActions();
+        //this.setupServerConnectionActions();
         this.copyBuiltinLevelFiles();
+    }
+
+    private void createNewServerManager() {
+        this.serverManager.set(new ServerManagerImpl());
     }
 
     private void setupLevelChangeActions() {
@@ -95,17 +100,18 @@ public final class ControllerImpl implements Controller {
         getLevelManager().addOnLevelEnd((level, leaderboard) -> {
             this.getGameLoopManager().stop();
             this.getServerManager().disconnect();
+            this.serverManager.set(new ServerManagerImpl());
         });
     }
 
-    private void setupServerConnectionActions() {
-        this.getServerManager().setLevelSupplier(() -> this.getLevelManager().getCurrentLevel().orElse(null));
+    private void setupServerConnectionActions(final ServerManager manager) {
+        manager.setLevelSupplier(() -> this.getLevelManager().getCurrentLevel().orElse(null));
 
-        this.getServerManager().setOnPlayerConnect(index -> {
+        manager.setOnPlayerConnect(index -> {
             System.out.println("Player connected: " + index);
 
             this.getLevelManager().getCurrentLevel().ifPresent(level -> {
-                Player player = level.createPlayer(index, true, this.getServerManager().modelInputMapper());
+                Player player = level.createPlayer(index, true, manager.modelInputMapper());
                 this.getServerManager().getPlayers().put(index, player);
             });
             return Unit.INSTANCE;

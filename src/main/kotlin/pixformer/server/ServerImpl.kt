@@ -36,11 +36,12 @@ class ServerImpl(
     private lateinit var server: EmbeddedServer<*, *>
 
     override fun start(port: Int) {
-        server = embeddedServer(Netty, port, module = { ApplicationModule(manager) }).start(wait = true)
+        server = embeddedServer(Netty, port, module = { ApplicationModule(manager) })
+        server.start(wait = true)
     }
 
     override fun stop() {
-        server.stop(1000, 1000)
+        server.stop(500, 1000)
     }
 }
 
