@@ -37,7 +37,7 @@ public final class ControllerImpl implements Controller {
     private static final String LEVELS_SUBFOLDER_NAME = "levels";
 
     private static final int MIN_PLAYERS_AMOUNT = 1;
-    private static final int MAX_PLAYERS_AMOUNT = 4;
+    private static final int MAX_PLAYERS_AMOUNT = 1;
 
     private final Wrapper<LevelManager> levelManager;
     private final ObservableWritableWrapper<ServerManager> serverManager;
