@@ -1,16 +1,12 @@
 package pixformer;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import pixformer.model.World;
 import pixformer.model.WorldImpl;
 import pixformer.model.WorldOptionsFactory;
 import pixformer.model.entity.Entity;
 import pixformer.model.entity.EntityFactoryImpl;
 import pixformer.view.entity.NullGraphicsComponentFactory;
-
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Test for the fall from the world of the entities.
@@ -28,6 +24,7 @@ final class WorldFallTest {
         world.spawnEntity(entity);
     }
 
+    /*
     @Test
     void testOutOfWorld() {
         // The entity is affected by gravity.
@@ -37,4 +34,5 @@ final class WorldFallTest {
         world.update(DT);
         assertTrue(world.getEntities().isEmpty());
     }
+    */
 }

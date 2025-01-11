@@ -40,7 +40,7 @@ class SerializationTest {
         val json = LevelSerialization.serialize(level)
         assertEquals(
             """
-            {"name":"test","spawnPointX":3,"spawnPointY":0,"scores":{},"entities":[{"type":"goomba","x":2.0,"y":1.0,"velocity":{"x":3.2,"y":1.0}}]}
+            {"name":"test","spawnPointX":3,"spawnPointY":0,"scores":{},"entities":[{"type":"goomba","x":2.0,"y":1.0,"velocity":{"x":3.2,"y":1.0},"width":1.0,"height":1.0}]}
             """.trimIndent(),
             json,
         )
@@ -73,7 +73,7 @@ class SerializationTest {
         val json = LevelSerialization.serialize(level)
         assertEquals(
             """
-            {"name":"test","spawnPointX":3,"spawnPointY":0,"scores":{},"entities":[{"type":"surprise","x":0.0,"y":1.0,"velocity":{"x":0.0,"y":0.0},"hasCollided":true}]}
+            {"name":"test","spawnPointX":3,"spawnPointY":0,"scores":{},"entities":[{"type":"surprise","x":0.0,"y":1.0,"velocity":{"x":0.0,"y":0.0},"width":1.0,"height":1.0,"hasCollided":true}]}
             """.trimIndent(),
             json,
         )
@@ -101,7 +101,7 @@ class SerializationTest {
         val json = LevelSerialization.serialize(level)
         assertEquals(
             """
-            {"name":"test","spawnPointX":5,"spawnPointY":2,"scores":{"1":{"points":2,"coinsNumber":10},"3":{"points":5,"coinsNumber":20}},"entities":[{"type":"player","x":5.0,"y":2.0,"velocity":{"x":0.0,"y":0.0},"playerIndex":3,"powerup":null}]}
+            {"name":"test","spawnPointX":5,"spawnPointY":2,"scores":{"1":{"points":2,"coinsNumber":10},"3":{"points":5,"coinsNumber":20}},"entities":[{"type":"player","x":5.0,"y":2.0,"velocity":{"x":0.0,"y":0.0},"width":0.94,"height":1.0,"playerIndex":3,"powerup":null}]}
             """.trimIndent(),
             json,
         )
