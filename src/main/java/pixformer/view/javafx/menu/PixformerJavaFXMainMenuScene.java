@@ -61,10 +61,10 @@ public final class PixformerJavaFXMainMenuScene extends JavaFXScene implements M
         mainBox.getChildren().add(levelsSelector);
         levelsSelector.setOnSelect(file -> this.selectLevel(controller.getLevelFromFile(file)));
 
-        final var playersSelector = new MainMenuPlayersSelector(controller);
+        /*final var playersSelector = new MainMenuPlayersSelector(controller);
         playersSelector.prefWidthProperty().bind(mainBox.prefWidthProperty());
         this.playersAmount.bind(playersSelector.playersAmountProperty());
-        mainBox.getChildren().add(playersSelector);
+        mainBox.getChildren().add(playersSelector);*/
 
         final var results = new MainMenuScoreResults(controller);
         root.getChildren().add(results);

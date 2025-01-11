@@ -1,4 +1,3 @@
-- Update menu screen: title and remove player amount selection
 - Text or color to distinguish player
 - CLI chat?
 - Handle disconnections
