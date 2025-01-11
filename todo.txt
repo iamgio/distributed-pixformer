@@ -1,3 +1,4 @@
 - Text or color to distinguish player
 - CLI chat?
 - Handle disconnections
+- Delete testlevel

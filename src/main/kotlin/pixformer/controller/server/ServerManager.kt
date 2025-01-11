@@ -21,7 +21,7 @@ interface ServerManager {
     val port: Int
 
     val onRealign: (LevelData) -> Unit
-    var onPlayerConnect: (Int) -> Unit
+    val onPlayerConnect: (Int) -> Unit
     var levelSupplier: () -> Level?
 
     fun startServer()
@@ -35,6 +35,8 @@ interface ServerManager {
     fun disconnect()
 
     fun dispatch(command: Command)
+
+    fun addOnDispatch(onDispatch: (Command) -> Unit)
 
     fun playerDisconnected(playerIndex: Int)
 

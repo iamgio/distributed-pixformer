@@ -1,6 +1,5 @@
 package pixformer.controller;
 
-import kotlin.Unit;
 import pixformer.common.file.FileUtils;
 import pixformer.common.wrap.ObservableWritableWrapper;
 import pixformer.common.wrap.SimpleObservableWritableWrapper;
@@ -17,7 +16,6 @@ import pixformer.model.*;
 import pixformer.model.entity.Entity;
 import pixformer.model.entity.EntityFactoryImpl;
 import pixformer.model.entity.GraphicsComponentFactory;
-import pixformer.model.entity.dynamic.player.Player;
 import pixformer.view.View;
 
 import java.io.File;
@@ -106,16 +104,6 @@ public final class ControllerImpl implements Controller {
 
     private void setupServerConnectionActions(final ServerManager manager) {
         manager.setLevelSupplier(() -> this.getLevelManager().getCurrentLevel().orElse(null));
-
-        manager.setOnPlayerConnect(index -> {
-            System.out.println("Player connected: " + index);
-
-            this.getLevelManager().getCurrentLevel().ifPresent(level -> {
-                Player player = level.createPlayer(index, true, manager.modelInputMapper());
-                this.getServerManager().getPlayers().put(index, player);
-            });
-            return Unit.INSTANCE;
-        });
     }
 
     /**

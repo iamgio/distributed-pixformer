@@ -34,6 +34,8 @@ class ServerManagerImpl : ServerManager {
     private var alignmentThread: Thread? = null
     private val realigner = Realigner(this)
 
+    private val onDispatchListeners = mutableListOf<(Command) -> Unit>()
+
     override val port: Int = PORT
     override val isLeader: Boolean
         get() = server != null
@@ -43,14 +45,22 @@ class ServerManagerImpl : ServerManager {
 
     override var session: DefaultClientWebSocketSession? = null
 
+    override val onPlayerConnect: (Int) -> Unit
     override val onRealign: (LevelData) -> Unit
-    override var onPlayerConnect: (Int) -> Unit = {}
     override lateinit var levelSupplier: () -> Level?
 
     init {
         onRealign = { data ->
             levelSupplier()?.let { level ->
                 realigner.realign(data, level)
+            }
+        }
+
+        onPlayerConnect = { index ->
+            println("Player connected: $index")
+            levelSupplier()?.let { level ->
+                val player: Player = level.createPlayer(index, true, modelInputMapper())
+                players[index] = player
             }
         }
     }
@@ -118,10 +128,16 @@ class ServerManagerImpl : ServerManager {
 
         println("Dispatching command: $command on player index ${command.playerIndex}")
 
+        onDispatchListeners.forEach { it(command) }
+
         val player = players[command.playerIndex] ?: return
 
         val model = player.inputComponent.getOrNull() as? CompleteModelInput ?: return
         command.execute(model)
+    }
+
+    override fun addOnDispatch(onDispatch: (Command) -> Unit) {
+        onDispatchListeners.add(onDispatch)
     }
 
     override fun playerDisconnected(playerIndex: Int) {
