@@ -18,6 +18,8 @@ import io.ktor.server.websocket.webSocket
 import io.ktor.websocket.Frame
 import io.ktor.websocket.readText
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -49,7 +51,7 @@ class ServerImpl(
 fun Application.ApplicationModule(manager: ServerManager) {
     install(WebSockets) {
         pingPeriod = 10.seconds
-        timeout = 100.seconds
+        timeout = 10.seconds
         maxFrameSize = Long.MAX_VALUE
         masking = false
     }
@@ -65,14 +67,13 @@ fun Application.ApplicationModule(manager: ServerManager) {
         // Shared flow to broadcast messages to all connected clients.
         val messageResponseFlow = MutableSharedFlow<String>()
         val sharedFlow = messageResponseFlow.asSharedFlow()
+        val broadcastJobs = mutableMapOf<DefaultWebSocketServerSession, Job>()
 
         suspend fun broadcast(text: String) {
             messageResponseFlow.emit(text)
         }
 
         suspend fun DefaultWebSocketServerSession.connect() {
-            // sessions.add(this)
-
             val playerIndex =
                 manager.players.keys
                     .maxOrNull()
@@ -81,11 +82,17 @@ fun Application.ApplicationModule(manager: ServerManager) {
             send(Frame.Text("$playerIndex"))
             manager.onPlayerConnect(playerIndex)
 
-            launch {
-                sharedFlow.collect { text ->
-                    outgoing.send(Frame.Text(text))
+            broadcastJobs[this] =
+                launch {
+                    sharedFlow.collect { text ->
+                        if (outgoing.isClosedForSend) {
+                            println("Player $playerIndex disconnected")
+                            manager.playerDisconnected(playerIndex)
+                            cancel()
+                        }
+                        outgoing.send(Frame.Text(text))
+                    }
                 }
-            }
         }
 
         webSocket("/${Endpoints.WEBSOCKETS}") {
@@ -97,6 +104,9 @@ fun Application.ApplicationModule(manager: ServerManager) {
             }
 
             for (frame in incoming) {
+                if (frame is Frame.Close) {
+                    println("!!! Frame.Close")
+                }
                 if (frame is Frame.Text) {
                     val text = frame.readText()
                     if (CommandSerializer.isCommand(text)) {

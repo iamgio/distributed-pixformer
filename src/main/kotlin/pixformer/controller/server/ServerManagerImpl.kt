@@ -1,9 +1,12 @@
 package pixformer.controller.server
 
 import io.ktor.client.plugins.websocket.DefaultClientWebSocketSession
+import io.ktor.websocket.CloseReason
+import io.ktor.websocket.close
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
+import kotlinx.coroutines.runBlocking
 import kotlinx.io.IOException
 import pixformer.controller.realign.Realigner
 import pixformer.controller.server.command.Command
@@ -99,6 +102,13 @@ class ServerManagerImpl : ServerManager {
 
     override fun disconnect() {
         println("Disconnecting from server")
+        runBlocking {
+            val reason = CloseReason(CloseReason.Codes.NORMAL, "Client disconnected")
+            session?.let {
+                println("Closing session")
+                it.close(reason)
+            } ?: System.err.println("Session is null")
+        }
         server?.stop()
         alignmentThread?.interrupt()
     }
@@ -112,6 +122,11 @@ class ServerManagerImpl : ServerManager {
 
         val model = player.inputComponent.getOrNull() as? CompleteModelInput ?: return
         command.execute(model)
+    }
+
+    override fun playerDisconnected(playerIndex: Int) {
+        val player = players.remove(playerIndex) ?: return
+        levelSupplier()?.world?.queueEntityDrop(player)
     }
 
     override fun modelInputMapper(): java.util.function.Function<CompleteModelInput, CompleteModelInput> =

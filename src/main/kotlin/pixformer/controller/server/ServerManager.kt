@@ -36,5 +36,7 @@ interface ServerManager {
 
     fun dispatch(command: Command)
 
+    fun playerDisconnected(playerIndex: Int)
+
     fun modelInputMapper(): java.util.function.Function<CompleteModelInput, CompleteModelInput>
 }
