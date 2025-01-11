@@ -17,8 +17,10 @@ import pixformer.model.entity.EntityFactoryImpl
 import pixformer.server.MessageToServer
 import pixformer.server.PlayerJumpMessage
 import pixformer.view.entity.NullGraphicsComponentFactory
+import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertIs
 
 /**
@@ -37,6 +39,14 @@ class ClientServerTest {
     fun setUp() {
         server.levelSupplier = { level }
         client1.levelSupplier = { level }
+    }
+
+    @AfterTest
+    fun tearDown() {
+        client1.disconnect()
+        client2.disconnect()
+        server.disconnect()
+        Thread.sleep(2000)
     }
 
     // C1 -> S <- C2
@@ -66,10 +76,36 @@ class ClientServerTest {
             delay(2000)
             launch(Dispatchers.IO) { client2.connectOrStart() }
             delay(2000)
+            assertEquals(3, server.players.size)
+            assertEquals(0, server.playablePlayerIndex)
+            assertEquals(1, client1.playablePlayerIndex)
+            assertEquals(2, client2.playablePlayerIndex)
+
             MessageToServer(PlayerJumpMessage).send(client1)
             delay(2000)
             assert(dispatchedOnServer)
             assert(dispatchedOnOtherClient)
+        }
+    }
+
+    @Test
+    fun disconnection() {
+        runBlocking {
+            server.connectOrStart()
+            delay(2000)
+            launch(Dispatchers.IO) { client1.connectOrStart() }
+            delay(2000)
+            launch(Dispatchers.IO) { client2.connectOrStart() }
+            delay(2000)
+
+            assertEquals(3, server.players.size)
+            client2.disconnect()
+
+            delay(1000)
+            MessageToServer(PlayerJumpMessage).send(client1)
+            delay(1000)
+
+            assertEquals(2, server.players.size)
         }
     }
 }
