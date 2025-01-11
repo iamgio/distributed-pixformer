@@ -68,11 +68,6 @@
       "x": 22,
       "y": 32
     },
-    {
-      "type": "koopa",
-      "x": 39,
-      "y": 28
-    },
 
     {
       "type": "coin",
@@ -154,16 +149,6 @@
       "type": "koopa",
       "x": 70,
       "y": 25
-    },
-    {
-      "type": "goomba",
-      "x": 80,
-      "y": 25,
-      "macro": {
-        "type": "fill",
-        "width": 2,
-        "height": 1
-      }
     },
     {
       "type": "grass",
