@@ -104,9 +104,6 @@ fun Application.ApplicationModule(manager: ServerManager) {
             }
 
             for (frame in incoming) {
-                if (frame is Frame.Close) {
-                    println("!!! Frame.Close")
-                }
                 if (frame is Frame.Text) {
                     val text = frame.readText()
                     if (CommandSerializer.isCommand(text)) {

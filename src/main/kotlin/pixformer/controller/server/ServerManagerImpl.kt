@@ -109,8 +109,8 @@ class ServerManagerImpl : ServerManager {
                 it.close(reason)
             } ?: System.err.println("Session is null")
         }
-        server?.stop()
         alignmentThread?.interrupt()
+        thread { server?.stop() }
     }
 
     override fun dispatch(command: Command) {
