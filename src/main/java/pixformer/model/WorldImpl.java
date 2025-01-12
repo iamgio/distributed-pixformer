@@ -6,6 +6,7 @@ import pixformer.model.entity.collision.EntityCollisionManagerImpl;
 import pixformer.model.entity.dynamic.player.Player;
 import pixformer.model.event.EventManager;
 import pixformer.model.input.UserInputComponent;
+import pixformer.model.score.Score;
 import pixformer.model.score.ScoreManager;
 import pixformer.model.score.ScoreManagerImpl;
 
@@ -157,15 +158,10 @@ public class WorldImpl implements World {
      */
     @Override
     public List<Integer> getIndexLeaderboard() {
-        if (this.lazyUserControlledEntity == null) {
-            return List.of();
-        }
-
-        return this.lazyUserControlledEntity.stream()
-                .filter(Player.class::isInstance)
-                .map(Player.class::cast)
-                .sorted((a, b) -> scoreManager.getScore(b).points() - scoreManager.getScore(a).points())
-                .map(Player::getIndex).toList();
+        return this.scoreManager.getAllScores().entrySet().stream()
+                .sorted(Map.Entry.comparingByValue(Comparator.comparingInt(Score::points).reversed()))
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
     }
 
     /**

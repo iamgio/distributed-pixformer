@@ -2,3 +2,4 @@
 - CLI chat?
 - Handle disconnections
 - Delete testlevel
+- Update docs
