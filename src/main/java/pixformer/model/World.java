@@ -90,5 +90,12 @@ public interface World extends Updatable {
      */
     void endGame(Entity winner);
 
+    /**
+     * Replaces entities in the world.
+     *
+     * @param entities entities to add
+     * @param filterToAdd filter to add entities, executed on the `entities` parameter
+     * @param filterToRemove filter to remove entities, executed on `getEntities()`
+     */
     void replaceEntities(Set<Entity> entities, Predicate<Entity> filterToAdd, Predicate<Entity> filterToRemove);
 }
