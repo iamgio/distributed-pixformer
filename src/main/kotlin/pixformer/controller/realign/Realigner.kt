@@ -8,7 +8,8 @@ import pixformer.model.entity.statics.Block
 import kotlin.jvm.optionals.getOrNull
 
 /**
- *
+ * Component that is invoked periodically, and is responsible for reconciling the game state of the client with the game state of the server.
+ * @param manager the server manager
  */
 class Realigner(
     private val manager: ServerManager,
@@ -16,6 +17,11 @@ class Realigner(
     // The controlled player entity
     private var player: Player? = null
 
+    /**
+     * Realigns the game state of the client with the game state of the server.
+     * @param new the new level data received from the server
+     * @param current the current level being played
+     */
     fun realign(
         new: LevelData,
         current: Level,
@@ -52,6 +58,7 @@ class Realigner(
         current.world.scoreManager.allScores = new.scores
     }
 
+    // The user-controlled player is not replaced, but updated instead.
     private fun realignPlayer(
         new: Player,
         current: Player = player!!,
