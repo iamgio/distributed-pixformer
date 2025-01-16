@@ -25,6 +25,13 @@ import kotlin.jvm.optionals.getOrNull
  * A visitor that serializes entities to JSON.
  */
 class SerializeEntityVisitor : EntityVisitor<JsonObject> {
+    /**
+     * Serializes an entity to a JSON object with properties: type, x, y, velocity, width, height.
+     * @param type type of the entity
+     * @param entity entity to serialize
+     * @param block additional properties to serialize
+     * @return JSON object
+     */
     private fun serialize(
         type: String,
         entity: Entity,

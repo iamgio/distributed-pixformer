@@ -17,6 +17,11 @@ import pixformer.model.entity.statics.Block
  * A utility class to serialize and deserialize level information on-the-fly to allow reconciliation between server and client.
  */
 object LevelSerialization {
+    /**
+     * Serializes the level to a JSON string.
+     * @param level level to serialize
+     * @return JSON string
+     */
     fun serialize(level: Level): String {
         val world = level.world
         val jsonObjs = world.entities.filter { it !is Block }.map { it.accept(SerializeEntityVisitor()) }
@@ -43,6 +48,12 @@ object LevelSerialization {
         return Json.encodeToString(json)
     }
 
+    /**
+     * Deserializes level information from a JSON string.
+     * @param json JSON string
+     * @param entityFactory entity factory to create entities from
+     * @return the generated level data, or `null` if deserialization failed
+     */
     fun deserialize(
         json: String,
         entityFactory: EntityFactory,

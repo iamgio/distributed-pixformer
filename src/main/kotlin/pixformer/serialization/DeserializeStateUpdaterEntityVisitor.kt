@@ -21,10 +21,16 @@ import pixformer.model.entity.statics.surprise.Surprise
  * A visitor that reads JSON and updates entity properties.
  * This does not count as deserialization, as it does not create new entities,
  * but rather updates existing ones.
+ * @param json JSON object to read from
  */
 class DeserializeStateUpdaterEntityVisitor(
     private val json: com.google.gson.JsonObject,
 ) : EntityVisitor<Unit> {
+    /**
+     * Updates common properties of an entity from the JSON object: velocity, width, height.
+     * X and Y coordinates are already handled by the entity factory.
+     * @param entity entity to update
+     */
     private fun updateCommonProperties(entity: MutableEntity) {
         json["velocity"]?.asJsonObject?.let { velocity ->
             entity.velocity = Vector2D(velocity["x"]!!.asDouble, velocity["y"]!!.asDouble)
