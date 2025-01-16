@@ -37,6 +37,8 @@ public abstract class JavaFXViewLauncher extends Application implements ViewLaun
 
         primaryStage.setTitle(this.getTitle());
         primaryStage.show();
+
+        primaryStage.setOnCloseRequest(e -> System.exit(0));
     }
 
     private Controller createController() {

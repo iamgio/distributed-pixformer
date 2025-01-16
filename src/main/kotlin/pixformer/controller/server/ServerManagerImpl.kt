@@ -35,11 +35,14 @@ private const val MAX_ATTEMPTS = 1
 @Suppress("DeferredResultUnused")
 @OptIn(DelicateCoroutinesApi::class)
 class ServerManagerImpl : ServerManager {
+    private var running = false
     private var server: Server? = null
-    private var alignmentThread: Thread? = null
     private val realigner = Realigner(this)
 
     private val onDispatchListeners = mutableListOf<(Command) -> Unit>()
+
+    private val shutdownHookThreads = mutableSetOf<Thread>()
+    private var realignmentThread: Thread? = null
 
     override val port: Int = PORT
     override val isLeader: Boolean
@@ -76,6 +79,15 @@ class ServerManagerImpl : ServerManager {
     }
 
     override fun connectToServer() {
+        running = true
+
+        // Add a shutdown hook to disconnect from the server.
+        Thread { disconnect() }.let {
+            shutdownHookThreads += it
+            Runtime.getRuntime().addShutdownHook(it)
+        }
+
+        // Message to announce a connection, and to keep the session alive to exchange commands.
         MessageToServer(PlayerConnectMessage).send(this)
     }
 
@@ -90,7 +102,7 @@ class ServerManagerImpl : ServerManager {
     }
 
     override fun startRealignmentRoutine(entityFactory: EntityFactory) {
-        alignmentThread =
+        realignmentThread =
             thread(start = true) {
                 var attempt = 0
 
@@ -121,7 +133,11 @@ class ServerManagerImpl : ServerManager {
     }
 
     override fun disconnect() {
+        if (!running) return
+
         println("Disconnecting from server")
+
+        running = false
 
         // Remove all players. This causes the game to end.
         levelSupplier()?.world?.replaceEntities(emptySet(), { false }, { it is Player })
@@ -136,10 +152,17 @@ class ServerManagerImpl : ServerManager {
         }
 
         // Stop the realignment routine.
-        alignmentThread?.interrupt()
+        realignmentThread?.interrupt()
 
         // Stop the server if this client is the leader.
         server?.let { thread { it.stop() } }
+
+        // Remove the shutdown hooks.
+        try {
+            shutdownHookThreads.forEach(Runtime.getRuntime()::removeShutdownHook)
+        } catch (ignored: IllegalStateException) {
+            // Call to disconnect() matches with shutdown.
+        }
     }
 
     override fun dispatch(command: Command) {
