@@ -27,7 +27,9 @@ sealed interface MessageToServerType {
 }
 
 /**
- *
+ * A message sent from the client to the server to connect.
+ * This message begins the communication between the client and the server
+ * and will actively start waiting for incoming messages from the client.
  */
 data object PlayerConnectMessage : MessageToServerType {
     override val name = EventType.PLAYER_CONNECT
@@ -38,6 +40,7 @@ data object PlayerConnectMessage : MessageToServerType {
     ) {
         session.send(Frame.Text("hello"))
 
+        // The next frame will contain the player index that the server assigns to the client.
         session.incoming.receive().let { frame ->
             if (frame is Frame.Text) {
                 val playerIndex = frame.readText().toInt()
@@ -46,6 +49,9 @@ data object PlayerConnectMessage : MessageToServerType {
             }
         }
 
+        // Wait for incoming commands that are sent from a client to the server,
+        // which then broadcasts them to all connected clients to dispatch them.
+        // For example, player movements, jumps, and abilities.
         for (frame in session.incoming) {
             if (frame is Frame.Text) {
                 val text = frame.readText()
@@ -57,14 +63,14 @@ data object PlayerConnectMessage : MessageToServerType {
 }
 
 /**
- * A message sent from the client to the server to let the player moves right.
+ * A message sent from the client to the server to let the player move to the right.
  */
 data object PlayerMoveRightMessage : MessageToServerType {
     override val name = EventType.PLAYER_MOVE_RIGHT
 }
 
 /**
- * A message sent from the client to the server to let the player moves right.
+ * A message sent from the client to the server to let the player move to the left.
  */
 data object PlayerMoveLeftMessage : MessageToServerType {
     override val name = EventType.PLAYER_MOVE_LEFT

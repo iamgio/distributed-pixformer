@@ -17,6 +17,7 @@ import pixformer.controller.server.command.CommandSerializer
 
 /**
  * A message sent from the client to the server as a WebSocket.
+ * @param type type of the message
  */
 data class MessageToServer(
     val type: MessageToServerType,

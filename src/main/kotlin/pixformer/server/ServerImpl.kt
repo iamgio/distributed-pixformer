@@ -30,7 +30,8 @@ import pixformer.serialization.LevelSerialization
 import kotlin.time.Duration.Companion.seconds
 
 /**
- *
+ * [Server] implementation using Ktor.
+ * @param manager the server manager
  */
 class ServerImpl(
     private val manager: ServerManager,
