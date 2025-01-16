@@ -27,6 +27,9 @@ const val PORT = 8082
 
 private const val ALIGNMENT_INTERVAL = 3000
 
+/**
+ * Implementation of [ServerManager].
+ */
 @Suppress("DeferredResultUnused")
 @OptIn(DelicateCoroutinesApi::class)
 class ServerManagerImpl : ServerManager {

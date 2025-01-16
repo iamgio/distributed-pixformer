@@ -12,7 +12,7 @@ import pixformer.serialization.LevelSerialization
 import pixformer.server.Endpoints
 
 /**
- *
+ * A reconciliation request to the server through HTTP GET.
  */
 class RealignRequest {
     /**
