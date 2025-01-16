@@ -27,6 +27,8 @@ const val PORT = 8082
 
 private const val ALIGNMENT_INTERVAL = 3000
 
+private const val MAX_ATTEMPTS = 1
+
 /**
  * Implementation of [ServerManager].
  */
@@ -90,18 +92,23 @@ class ServerManagerImpl : ServerManager {
     override fun startRealignmentRoutine(entityFactory: EntityFactory) {
         alignmentThread =
             thread(start = true) {
-                // each 5 seconds, send a request to /align
-                while (true) {
-                    if (isLeader) {
-                        // If the client is the leader, thus it's also the server, the realignment is not needed.
-                        break
-                    }
+                var attempt = 0
 
+                // Each N seconds, send a request to /align
+                // If the client is the leader, thus it's also the server, the realignment is not needed.
+                while (!isLeader) {
                     println("Aligning with server")
 
                     try {
                         RealignRequest().send(entityFactory, this)
-                    } catch (ignored: IOException) {
+                        attempt = 0
+                    } catch (e: IOException) {
+                        attempt++
+                        System.err.println("Could not realign with server. Attempt $attempt")
+                        if (attempt > MAX_ATTEMPTS) {
+                            System.err.println("Max attempts reached. Disconnecting from server")
+                            disconnect()
+                        }
                     }
 
                     try {
@@ -115,6 +122,11 @@ class ServerManagerImpl : ServerManager {
 
     override fun disconnect() {
         println("Disconnecting from server")
+
+        // Remove all players. This causes the game to end.
+        levelSupplier()?.world?.replaceEntities(emptySet(), { false }, { it is Player })
+
+        // Close the session.
         runBlocking {
             val reason = CloseReason(CloseReason.Codes.NORMAL, "Client disconnected")
             session?.let {
@@ -122,8 +134,12 @@ class ServerManagerImpl : ServerManager {
                 it.close(reason)
             } ?: System.err.println("Session is null")
         }
+
+        // Stop the realignment routine.
         alignmentThread?.interrupt()
-        thread { server?.stop() }
+
+        // Stop the server if this client is the leader.
+        server?.let { thread { it.stop() } }
     }
 
     override fun dispatch(command: Command) {
