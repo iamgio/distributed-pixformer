@@ -171,7 +171,9 @@ Domain events are:
     - damages player;
     - changes state (e.g. Koopa retreats in its shell);
     
-These events are modeled by a `Command` class that runs the corresponding action on a player:
+#### Commands
+
+The subset of events that are directly triggered by user inputs are modeled by a `Command` class:
 
 !(600x_)[Command UML](img/class-uml/command.svg "Class diagram of the command hierarchy.")
 
