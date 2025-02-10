@@ -263,14 +263,7 @@ Consistency is guaranteed through periodic reconciliation with the server, as al
     - The level state is represented using JSON, adopting the same structure used for loading levels from files;
     - Reconciliation is not triggered for the leader client;
 
-- how should components be _authenticated_?
-    * e.g. OAuth, JWT, etc.
-- how should components be _authorized_?
-    * e.g. RBAC, ABAC, etc.
-
 ## Technological details
-
-- any particular _framework_ / _technology_ being exploited goes here
 
 - The base game was developed in Java.
 
