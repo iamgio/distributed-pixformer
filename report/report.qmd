@@ -1,11 +1,20 @@
 .include {setup.qmd}
 
 .abstract
-	.loremipsum
+	This report presents the [Distributed Pixformer](https://github.com/iamgio/distributed-pixformer) project, made for the 2024-2025 Distributed Systems course at Unibo.
+	This project builds upon the [Pixformer](https://github.com/iamgio/OOP22-pixformer) project, developed for the 2022-2023 Object-Oriented Programming course at Unibo, crafted in Java with an MVC architecture, which was selected as a good foundation due to its modularity and maintainability. In this enhanced version it becomes possible to compete against players over the network in a fun Super Mario-like adventure.  
+    Credits for the original project go to: Giorgio Garofalo, Giacomo Antonelli, Nicolò Ghignatti, Luca Patrignani.  
+
 
 ##### AI Disclaimer
 
-TODO
+```
+"During the preparation of this work, the author(s) used GitHub Copilot
+to assist with code completion and documentation generation.
+After using this tool/service, the author(s) reviewed and edited the
+content as needed and take(s) full responsibility for the content of the
+final report/artifact."
+```
 
 # Concept
 
