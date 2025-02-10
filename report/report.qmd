@@ -19,19 +19,19 @@ The users will be interacting with the system while sitting in front of their ow
 Although games will be started sporadically, interactions during a level are highly frequent
 and happen via keyboard commands, which trigger events whose results are displayed on screen.
 
-No data is stored, but a lot of information needs to be exchanged.
+No data is stored persistently, but a lot of information needs to be exchanged.
 
 # Requirements
 
 #### Functional requirements
 
-- In the main menu, the user will be asked to join a game.  
-  If the prompted game does not exist, it will be created and said user is the leader.  
+- While in the main menu, the user will be able to select a level to play.  
+  If a game does not exist yet, it will be created and said user becomes its leader.  
   The system must be scalable enough to allow players to join a game at any time;
   
 - Fault tolerance: if a player goes offline he will be kicked out of the game, and will be able to join again
   and start from his previous position and statistics.
-    - However, if the creator of the game goes offline, the game will end.
+    - However, if the leader goes offline, the game will end.
 
 - During the game, a player will encounter different enemies, each with their own behavior:
     - Goomba: a small, brown, walking mushroom that can be defeated by jumping on it;
@@ -48,7 +48,7 @@ No data is stored, but a lot of information needs to be exchanged.
     - Destructible: when hit from below, it is destroyed;
     - Indestructible: cannot be destroyed.
 
-- Each player has a score, which is earned by collecting coins and defeating enemies.
+- Each player has a score, which is earned by collecting coins and defeating enemies. The leaderboard can be seen both during and after a game.
 
 - A player's game ends if he: 
     - is damaged while in the smallest state;
@@ -61,7 +61,7 @@ No data is stored, but a lot of information needs to be exchanged.
 
 - The game must run on the three main operative systems without any major difference;
 - The codebase must be maintainable and scalable;
-- Latency must be minimal to ensure a smooth experience.
+- Latency must be minimal to ensure a smooth experience, while ensuring a strong consistency between players.
 
 # Design
 
@@ -70,14 +70,14 @@ No data is stored, but a lot of information needs to be exchanged.
 The adopted architecture is a slight variation of client-server, the ***leader-follower*** pattern:
 - The architecture is centralized by means of a server. However, it becomes an invisible detail for the user.
 - When the client attempts a connection to a server and it fails, it sets the server up and connects to it again.
-  By doing so, this client is the leader;
+  By doing so, this client becomes the leader;
 - Other clients that join are followers.
 
 This architecture was chosen because of simplicity, efficacy, speed and complexity hiding from the user.
 An alternative that was thoroughly considered was a peer-to-peer architecture which consisted of one server
-per user, where all the servers could communicate and use some replication system.  
-This strategy was discarded because of high complexity and performance issues, with the only benefit
-being a better fault tolerance in case one server goes offline.
+per user, where all the servers could communicate.  
+This strategy was discarded because of high complexity and potential latency issues, with the only benefit
+being a better fault tolerance in case the leader goes offline.
 
 ## Infrastructure
 
@@ -85,16 +85,16 @@ being a better fault tolerance in case one server goes offline.
 - There is one server per game, located on the same machine as the leader client;
 - For development and simplicity purposes, all clients will be running on the same machine.
   However, it is possible for clients to be distributed across the world as long as the leader's firewall
-  accepts connections from outside the network;
-- Data isn't stored, and the state of the game is replicated on all $ N $ clients;
-- Clients are assumed to know the IP of the server, as it is typed by the user before joining a game;
+  accepts connections from outside the network. An additional centralized server might however be needed in order to allow searching for ready-to-join games;
+- Data isn't stored persistently, and the state of the game is replicated on all $ N $ clients;
+- Clients are assumed to know the IP of the server;
 - No authentication is performed, mutual trust is assumed;
 - Communication is performed via a *publish-subscribe* pattern: since the game is heavily event-based,
   clients will mainly announce the trigger of an event to the server, which may process it and eventually
   forward it to the other clients, hence clients are both publishers and subscribers;
 - Entity mapping:
-  - The game loop is performed both on client and server side,
-    with the server periodically sending alignment updates to clients (see *Interaction*).
+  - The game loop is performed on each client. Since the leader's client also overlaps with the server,
+    it is the source of truth which periodically sends alignment updates to clients (see *Interaction*).
   - The rendering process is performed on the client side.
 
 .box {TO DO}
@@ -141,12 +141,12 @@ The system adopts a ***client-side prediction and server reconciliation*** patte
   updating its local game state independently. The event message is sent to the server.
 - The server receives the event, updates its internal game state and broadcasts the event to the other clients,
   which update their game state as well.
-- The server acts as the authoritative source of truth, periodically sending its internal game state to the clients.
+- The server, which matches with the leader's client, acts as the authoritative source of truth, periodically sending its internal game state to the clients.
   This ensures consistency across clients, which may otherwise be compromised by latency or packet loss.
 
 Clients send only event messages to the server. The server can instead send one of the two following messages to clients:
 - Event messages received by a client, which are forwarded via broadcast to all the clients;
-- A command to reconciliate to the centralized game state, which is attached in the message body and contains:
+- A command to reconciliate with the centralized game state, which is attached in the message body and contains:
     - Online players and their score;
     - All entities in the world and their position, velocity and state.
 
@@ -166,66 +166,57 @@ Clients send only event messages to the server. The server can instead send one 
 
 ## Data and Consistency Issues
 
-- Is there any data that needs to be stored?
-    * _what_ data? _where_? _why_?
-
-- how should _persistent data_ be __stored__?
-    * e.g. relations, documents, key-value, graph, etc.
-    * why?
-
-- Which components perform queries on the database?
-    * _when_? _which_ queries? _why_?
-    * concurrent read? concurrent write? why?
-
-- Is there any data that needs to be shared between components?
-    * _why_? _what_ data?
+Although no peristent data is stored, volatile game data is shared and replicated between clients. 
+Consistency is guaranteed through periodic reconciliation with the server, as already mentioned.
 
 ### Fault-Tolerance
 
-- Is there any form of data __replication__ / federation / sharing?
-    * _why_? _how_ does it work?
+- The game state is replicated on each client with its own game loop, prioritizing availability over consistency in order to provide a smooth experience;
 
-- Is there any __heart-beating__, __timeout__, __retry mechanism__?
-    * _why_? _among_ which components? _how_ does it work?
+- If a client fails the reconciliation request twice in a row, meaning the server cannot be reached possibly because the leader player has quit the game, it is kicked out to the main menu;
 
-- Is there any form of __error handling__?
-    * _what_ happens when a component fails? _why_? _how_?
+- Heart-beating and timeout are used, as provided by the framework (see *Implementation*);
+
+- If a client quits the game or crashes, its corresponding player entity is removed from the server and clients;
 
 ### Availability
 
-- Is there any __caching__ mechanism?
-    * _where_? _why_?
-
-- Is there any form of __load balancing__?
-    * _where_? _why_?
-
-- In case of __network partitioning__, how does the system behave?
-    * _why_? _how_?
-
-### Security
-
-- Is there any form of __authentication__?
-    * _where_? _why_?
-
-- Is there any form of __authorization__?
-    * which sort of _access control_?
-    * which sorts of users / _roles_? which _access rights_?
-
-- Are __cryptographic schemas__ being used?
-    * e.g. token verification, 
-    * e.g. data encryption, etc.
-
---- 
-<!-- Riparti da qui  -->
+- In case of network partitioning, the system prioritizes availability over consistency.
+  In case a client goes offline for a short time, the user input is still processed immediately to provide
+  a fast response and smooth experience. As soon as it comes back online (assuming it wasn't already kicked out
+  due to timeout), the reconciliation will align its game state to the server's.
 
 # Implementation
 
-- which __network protocols__ to use?
-    * e.g. UDP, TCP, HTTP, WebSockets, gRPC, XMPP, AMQP, MQTT, etc.
-- how should _in-transit data_ be __represented__?
-    * e.g. JSON, XML, YAML, Protocol Buffers, etc.
-- how should _databases_ be __queried__?
-    * e.g. SQL, NoSQL, etc.
+- Almost every interaction happens in a persistent WebStocket session between the server and each client;
+    - In-transit data is represented using a simple text-based format: `n|event`, with `n` being the index of the player triggering the event, and `event` the event type. For example `2|jump` signals player 2 jumping.
+    - These are by far the most common exchanged messages, thus having a simple-to-deserialize format is crucial for performance reasons.
+- Ping (heart-beating) and timeout parameters match to 10 seconds: if a ping to the server fails, the session is closed;
+- The main bridge between client and servers is provided by a `ServerManager`, which keeps track of information such as the WebSocket session, online players, reconciliation routine, and more.
+
+    .box {UML}
+        todo
+    
+- Client-to-server event messages are triggered by a `Decorator` that wraps the original player's input component, while also sending the corresponding message, on the active WebSocket session, for each action:
+    ```kotlin
+    class ServerEventCompleteModelInputDecorator(
+        private val modelInput: CompleteModelInput,
+        private val serverManager: ServerManager,
+    ) : CompleteModelInput {
+        override fun jump() {
+            modelInput.jump() // Invokes the original action
+            MessageToServer(PlayerJumpMessage).send(serverManager)
+        }
+        ...
+    }
+    ```
+- Upon receiving an event message, the server does nothing but broadcasting it to all the clients.
+    - When a client receives the event, it deserializes the message and performs the action on the player with the given index;
+    - However, because of the leader-follower pattern, one of the clients shares the same game loop and state with the server, hence updating the centralized game state, acting as the single source of truth.
+- Periodic reconciliation of a client to the server's game state happens via an HTTP GET request every 3 seconds;
+    - The level state is represented using JSON, adopting the same structure used for loading levels from files;
+    - Reconciliation is not triggered for the leader client;
+
 - how should components be _authenticated_?
     * e.g. OAuth, JWT, etc.
 - how should components be _authorized_?
@@ -234,6 +225,12 @@ Clients send only event messages to the server. The server can instead send one 
 ## Technological details
 
 - any particular _framework_ / _technology_ being exploited goes here
+
+- The base game was developed in Java.
+
+- The distributed enhancement was developed in Kotlin, with the [Ktor](https://ktor.io) framework.
+
+- The WebSocket protocol does not natively provide a broadcast feature, which was instead made possible by using Kotlin Coroutine's message flows, collecting each session.
 
 # Validation
 
