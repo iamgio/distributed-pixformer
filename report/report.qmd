@@ -2,7 +2,7 @@
 
 .abstract
 	This report presents the [Distributed Pixformer](https://github.com/iamgio/distributed-pixformer) project, made for the 2024-2025 Distributed Systems course at Unibo.
-	This project builds upon the [Pixformer](https://github.com/iamgio/OOP22-pixformer) project, developed for the 2022-2023 Object-Oriented Programming course at Unibo, crafted in Java with an MVC architecture, which was selected as a good foundation due to its modularity and maintainability. In this enhanced version it becomes possible to compete against players over the network in a fun Super Mario-like adventure.  
+	This project builds upon the [Pixformer](https://github.com/iamgio/OOP22-pixformer) project, developed for the 2022-2023 Object-Oriented Programming course at Unibo, crafted in Java with an MVC architecture combined with ECS (Entity Component System), which was selected as a good foundation due to its modularity and maintainability. In this enhanced version it becomes possible to compete against players over the network in a fun Super Mario-like adventure.  
     Credits for the original project go to: Giorgio Garofalo, Giacomo Antonelli, Nicolò Ghignatti, Luca Patrignani.  
 
 
@@ -136,7 +136,7 @@ The domain entities are:
 - Power-ups (Mushroom, Fire Flower);
 - End flag;
 
-Each entity is defined by a set of components: input, physics, collision and graphics.
+As defined by the Entity Component System (ECS) architecture, each entity is defined by a set of components: input, physics, collision and graphics.
 For this report, only the input component is relevant, as it defines the reaction of the entity from a user input.
 
 !(630x_)[Entity UML](img/class-uml/input.svg)
