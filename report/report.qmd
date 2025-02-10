@@ -113,11 +113,47 @@ being a better fault tolerance in case the leader goes offline.
 
 ## Modelling
 
+The entry point of the distributed enhancement of the project lies in the `ServerManager`, which acts as a bridge between client and server which keeps track of the following information:
+- The current WebSocket session with the server;
+- Online players;
+- Player index assigned to the client;
+- Reconciliation routine;
+
+and performs the following operations:
+- Connects to the server, and also starts it if this is the leader client;
+- Initializes the reconciliation routine;
+- Gracefully disconnects from the server;
+- Dispatches commands on specific players;
+    
+This lets the architecture of the original project stay untouched, aside for the new `ServerManager` component provided by the MVC `Controller`:
+
+!(180x_)[ServerManager UML](img/class-uml/controller.svg "Position of the ServerManager in the MVC architecture.")
+
+### Entities
 The domain entities are:
 - Players;
 - Enemies (Goomba, Koopa);
 - Power-ups (Mushroom, Fire Flower);
 - End flag;
+
+Each entity is defined by a set of components: input, physics, collision and graphics.
+For this report, only the input component is relevant, as it defines the reaction of the entity from a user input.
+
+!(630x_)[Entity UML](img/class-uml/input.svg)
+
+For instance, a Goomba's `InputComponent` may just be a `HorizontalModelInput`, as no complex movement is needed.
+A `Player`, instead, requires a full `CompleteModelInput` to use all his features.
+
+Why is the user input particularly important here? Let's say our client has to send information to the server
+each time our player moves, jumps or does any other action. The most maintainable, invisible and elegant solution
+would be to take the already existing `InputComponent` of the player, wrap it into a *decorator* and inject it as the entity's new input component.
+
+The decorator performs the exact same operations as the wrapped input (*proxy* pattern), while also sending
+messages to the server at each performed action:
+
+!(500x_)[Decorator](img/class-uml/event-decorator.svg "Class diagram of the input decorator.")
+
+### Events
 
 Domain events are:
 - Player:
@@ -134,12 +170,16 @@ Domain events are:
 - Enemy:
     - damages player;
     - changes state (e.g. Koopa retreats in its shell);
+    
+These events are modeled by a `Command` class that runs the corresponding action on a player:
 
-Aside for alignment messages (see *Interaction*), these events represent the only kind of message exchanged between
-server and clients.
+!(600x_)[Command UML](img/class-uml/command.svg "Class diagram of the command hierarchy.")
 
-.box {TODO}
-    > Class diagram are welcome here
+Commands must be serialized and deserialized in order to be exchanged:
+
+!(220x_)[Command serializer UML](img/class-uml/command-serializer.svg "Class diagram of the command (de)serializer.")
+
+Aside for alignment messages (see *Interaction*), these events represent the only kind of message exchanged between server and clients.
 
 <<<
 
@@ -200,11 +240,8 @@ Consistency is guaranteed through periodic reconciliation with the server, as al
 - Almost every interaction happens in a persistent WebStocket session between the server and each client;
     - In-transit data is represented using a simple text-based format: `n|event`, with `n` being the index of the player triggering the event, and `event` the event type. For example `2|jump` signals player 2 jumping.
     - These are by far the most common exchanged messages, thus having a simple-to-deserialize format is crucial for performance reasons.
+    
 - Ping (heart-beating) and timeout parameters match to 10 seconds: if a ping to the server fails, the session is closed;
-- The main bridge between client and servers is provided by a `ServerManager`, which keeps track of information such as the WebSocket session, online players, reconciliation routine, and more.
-
-    .box {UML}
-        todo
     
 - Client-to-server event messages are triggered by a `Decorator` that wraps the original player's input component, while also sending the corresponding message, on the active WebSocket session, for each action:
     ```kotlin
