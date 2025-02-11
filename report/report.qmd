@@ -301,22 +301,16 @@ Consistency is guaranteed through periodic reconciliation with the server, as al
 
 # Release
 
-- how where components organized into _inter-dependant modules_ or just a single monolith?
-    * provide a _dependency graph_ if possible
+The project is structured into a single module, which is divided into two distinct parts: the `java` source root houses the original base project, containing the front-end and the entire game logic, while the `kotlin` source root contains the distributed features. These two parts are connected by the `Controller`.
 
-- were modules distributed as a _single archive_ or _multiple ones_?
-    * why?
-
-- how were archive versioned? 
-
-- were archive _released_ onto some archive repository (e.g. Maven, PyPI, npm, etc.)?
-    * how to _install_ them?
+Since there is no clear distinction between a client and a server from the user’s perspective, the artifact is packaged in a single JAR archive, available for download on GitHub Releases.
 
 # Deployment
 
-- should one install your software from scratch, how to do it?
-    * provide instructions
-    * provide expected outcomes
+1. `gradle clean build`
+2. `java -jar build/libs/pixformer-1.0-SNAPSHOT-all.jar`
+
+A game window will open from the main menu. Games can be joined from there.
 
 # User Guide
 
