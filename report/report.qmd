@@ -139,7 +139,7 @@ The domain entities are:
 As defined by the Entity Component System (ECS) architecture, each entity is defined by a set of components: input, physics, collision and graphics.
 For this report, only the input component is relevant, as it defines the reaction of the entity from a user input.
 
-!(630x_)[Entity UML](img/class-uml/input.svg)
+![Entity UML](img/class-uml/input.svg)
 
 For instance, a Goomba's `InputComponent` may just be a `HorizontalModelInput`, as no complex movement is needed.
 A `Player`, instead, requires a full `CompleteModelInput` to use all his features.
@@ -151,7 +151,7 @@ would be to take the already existing `InputComponent` of the player, wrap it in
 The decorator performs the exact same operations as the wrapped input (*proxy* pattern), while also sending
 messages to the server at each performed action:
 
-!(500x_)[Decorator](img/class-uml/event-decorator.svg "Class diagram of the input decorator.")
+![Decorator](img/class-uml/event-decorator.svg "Class diagram of the input decorator.")
 
 ### Events
 
@@ -175,7 +175,7 @@ Domain events are:
 
 The subset of events that are directly triggered by user inputs are modeled by a `Command` class:
 
-!(600x_)[Command UML](img/class-uml/command.svg "Class diagram of the command hierarchy.")
+![Command UML](img/class-uml/command.svg "Class diagram of the command hierarchy.")
 
 Commands must be serialized and deserialized in order to be exchanged:
 
