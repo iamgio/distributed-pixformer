@@ -307,7 +307,7 @@ Since there is no clear distinction between a client and a server from the userâ
 
 # Deployment
 
-1. `gradle clean build`
+1. `./gradlew clean build`
 2. `java -jar build/libs/pixformer-1.0-SNAPSHOT-all.jar`
 
 A game window will open from the main menu. Games can be joined from there.
