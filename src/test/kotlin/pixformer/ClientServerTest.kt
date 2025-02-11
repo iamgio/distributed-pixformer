@@ -39,6 +39,7 @@ class ClientServerTest {
     fun setUp() {
         server.levelSupplier = { level }
         client1.levelSupplier = { level }
+        client2.levelSupplier = { level }
     }
 
     @AfterTest

@@ -51,7 +51,8 @@ class Realigner(
                 }
                 true
             },
-            { it !is Block && (it !is Player || it.index != manager.playablePlayerIndex) }, // Filter to remove
+            // Filter to remove
+            { it !is Block && (it !is Player || it.index != manager.playablePlayerIndex) },
         )
 
         // Update the player scores.
