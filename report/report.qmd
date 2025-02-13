@@ -253,9 +253,12 @@ due to timeout), the reconciliation will align its game state to the server's.
 
 # Implementation
 
-- Almost every interaction happens in a persistent WebStocket session between the server and each client;
+- Almost every interaction happens in a persistent WebStocket session between the server and each client.
     - In-transit data is represented using a simple text-based format: `n|event`, with `n` being the index of the player triggering the event, and `event` the event type. For example `2|jump` signals player 2 jumping.
     - These are by far the most common exchanged messages, thus having a simple-to-deserialize format is crucial for performance reasons.
+
+- At handshake time, the new client sends a `hello` text frame, and then waits for the next incoming frame. The server then sends the player index as a text response, which the client reads and stores as an integer. At this point, the client begins the persistent session.  
+  This is handled by the `PlayerConnectMessage` class.
     
 - Upon receiving an event message, the server does nothing but broadcasting it to all the clients.
     - When a client receives the event, it deserializes the message and performs the action on the player with the given index;
@@ -279,14 +282,48 @@ due to timeout), the reconciliation will align its game state to the server's.
   ```
   
 - Periodic reconciliation of a client to the server's game state happens via an HTTP GET request every 3 seconds;
-  - The level state is represented using JSON, adopting the same structure used for loading levels from files;
-  - Reconciliation is not triggered for the leader client;
+  - The level state is represented using JSON, adopting the same structure used for loading levels from files:
+    ```json
+    {
+      "name": "Level 1",
+      "spawnPointX": 5,
+      "spawnPointY": 2,
+      "scores": {
+        "1": {
+          "points": 2,
+          "coinsNumber": 10
+        },
+        "2": {
+            "points": 5,
+            "coinsNumber": 20
+          }
+      },
+      "entities": [
+        {
+          "type": "player",
+          "x": 5.0,
+          "y": 2.0,
+          "velocity": {
+            "x": 0.1,
+            "y": 0.0
+          },
+          "playerIndex": 1,
+          "powerup": "Mushroom"
+        },
+        ...
+      ]
+    }
+    ```
+    
+- The server runs by default on port `8082` and features two endpoints:
+  - `/ws`: endpoint for WebSocket exchanges;
+  - `/realign`: HTTP GET endpoint for fetching the centralized game state.
 
 ## Technological details
 
-- The base game was developed in Java.
+- The base game was developed in Java;
 
-- The distributed enhancement was developed in Kotlin, with the [Ktor](https://ktor.io) framework.
+- The distributed enhancement was developed in Kotlin, with the [Ktor](https://ktor.io) framework, used with Netty;
 
 - The WebSocket protocol does not natively provide a broadcast feature, which was instead made possible by using Kotlin Coroutine's shared message flows, which collect and store each session.
 
