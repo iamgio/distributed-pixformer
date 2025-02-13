@@ -191,21 +191,32 @@ Aside for alignment messages (see *Interaction*), these events represent the onl
 
 ## Interaction
 
-The system adopts a ***client-side prediction and server reconciliation*** pattern:
-- The client processes user inputs (e.g. player movement) immediately in order to provide a responsive experience,
-  updating its local game state independently. The event message is sent to the server.
-- The server receives the event, updates its internal game state and broadcasts the event to the other clients,
-  which update their game state as well.
-- The server, which matches with the leader's client, acts as the authoritative source of truth, periodically sending its internal game state to the clients.
-  This ensures consistency across clients, which may otherwise be compromised by latency or packet loss.
+The system adopts a ***client-side prediction and server reconciliation*** pattern.
+The following subsections will describe its components in detail.
 
-Clients send only event messages to the server. The server can instead send one of the two following messages to clients:
-- Event messages received by a client, which are forwarded via broadcast to all the clients;
-- A command to reconciliate with the centralized game state, which is attached in the message body and contains:
-    - Online players and their score;
-    - All entities in the world and their position, velocity and state.
+#### Handshake
 
-![Interaction UML](img/sequence-uml/interaction.svg "Sequence diagram of the interaction between two clients and the server.")
+- As soon as a new client connects to the server, a handshake is required in order to assign the player index to the new client. This index is incremental and acts as an identifier for the client. When the handshake is complete, the client can start playing.
+- At connection time, a *hello* message is sent from the client to the server;
+- The server decides the client's index and sends it as a response.
+
+!(400x_)[Handshake UML](img/sequence-uml/handshake.svg "Sequence diagram of client-server handshake.")
+
+#### User input events
+- The client processes user inputs (player movement, jump, sprint and ability) immediately in order to provide a responsive and smooth experience,
+  updating its local game state independently. The event message, along with the player identifier, is sent to the server;
+- The server receives the event, updates its internal game state and forwards, via broadcast, the event message to the other clients,
+  which update their game state as well;
+
+![User inputs UML](img/sequence-uml/input.svg "Sequence diagram of input events.")
+
+#### Game state reconciliation
+
+- Each client periodically sends a reconciliation request to the server, the authoritative source of truth, which sends its internal game state as a response.
+  This ensures consistency across clients, which may otherwise be compromised by latency or packet loss;
+- Since the server matches with the leader's client and they share the same game state, reconciliation is not performed on the leader's client.
+
+![Reconciliation UML](img/sequence-uml/reconciliation.svg "Sequence diagram of the game state reconciliation.")
 
 ## Behaviour
 
@@ -231,14 +242,14 @@ Consistency is guaranteed through periodic reconciliation with the server, as al
 
 - Heart-beating and timeout are used, as provided by the framework (see *Implementation*);
 
-- If a client quits the game or crashes, its corresponding player entity is removed from the server and clients;
+- If a client quits the game or crashes, its corresponding player entity is removed from the server and clients.
 
 ### Availability
 
-- In case of network partitioning, the system prioritizes availability over consistency.
-  In case a client goes offline for a short time, the user input is still processed immediately to provide
-  a fast response and smooth experience. As soon as it comes back online (assuming it wasn't already kicked out
-  due to timeout), the reconciliation will align its game state to the server's.
+In case of network partitioning, the system prioritizes availability over consistency.
+In case a client goes offline for a short time, its user input is still processed immediately to provide
+a fast response and smooth experience. As soon as it comes back online (assuming it wasn't already kicked out
+due to timeout), the reconciliation will align its game state to the server's.
 
 # Implementation
 
@@ -246,27 +257,30 @@ Consistency is guaranteed through periodic reconciliation with the server, as al
     - In-transit data is represented using a simple text-based format: `n|event`, with `n` being the index of the player triggering the event, and `event` the event type. For example `2|jump` signals player 2 jumping.
     - These are by far the most common exchanged messages, thus having a simple-to-deserialize format is crucial for performance reasons.
     
-- Ping (heart-beating) and timeout parameters match to 10 seconds: if a ping to the server fails, the session is closed;
-    
-- Client-to-server event messages are triggered by a `Decorator` that wraps the original player's input component, while also sending the corresponding message, on the active WebSocket session, for each action:
-    ```kotlin
-    class ServerEventCompleteModelInputDecorator(
-        private val modelInput: CompleteModelInput,
-        private val serverManager: ServerManager,
-    ) : CompleteModelInput {
-        override fun jump() {
-            modelInput.jump() // Invokes the original action
-            MessageToServer(PlayerJumpMessage).send(serverManager)
-        }
-        ...
-    }
-    ```
 - Upon receiving an event message, the server does nothing but broadcasting it to all the clients.
     - When a client receives the event, it deserializes the message and performs the action on the player with the given index;
     - However, because of the leader-follower pattern, one of the clients shares the same game loop and state with the server, hence updating the centralized game state, acting as the single source of truth.
+    
+- Ping (heart-beating) and timeout parameters match to 10 seconds: if a ping to the server fails, the session is closed;
+    
+- Client-to-server event messages are triggered by a `Decorator` that wraps the original player's input component, while also sending the corresponding message, on the active WebSocket session, for each action:
+    
+  ```kotlin
+  class ServerEventCompleteModelInputDecorator(
+      private val modelInput: CompleteModelInput,
+      private val serverManager: ServerManager,
+  ) : CompleteModelInput {
+      override fun jump() {
+          modelInput.jump() // Invokes the original action
+          MessageToServer(PlayerJumpMessage).send(serverManager)
+      }
+      ...
+  }
+  ```
+  
 - Periodic reconciliation of a client to the server's game state happens via an HTTP GET request every 3 seconds;
-    - The level state is represented using JSON, adopting the same structure used for loading levels from files;
-    - Reconciliation is not triggered for the leader client;
+  - The level state is represented using JSON, adopting the same structure used for loading levels from files;
+  - Reconciliation is not triggered for the leader client;
 
 ## Technological details
 
@@ -274,7 +288,7 @@ Consistency is guaranteed through periodic reconciliation with the server, as al
 
 - The distributed enhancement was developed in Kotlin, with the [Ktor](https://ktor.io) framework.
 
-- The WebSocket protocol does not natively provide a broadcast feature, which was instead made possible by using Kotlin Coroutine's message flows, collecting each session.
+- The WebSocket protocol does not natively provide a broadcast feature, which was instead made possible by using Kotlin Coroutine's shared message flows, which collect and store each session.
 
 # Validation
 
