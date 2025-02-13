@@ -8,7 +8,7 @@
 
 ##### AI Disclaimer
 
-```
+```text
 "During the preparation of this work, the author(s) used GitHub Copilot
 to assist with code completion and documentation generation.
 After using this tool/service, the author(s) reviewed and edited the
@@ -76,7 +76,9 @@ No data is stored persistently, but a lot of information needs to be exchanged.
 
 ## Architecture
 
-The adopted architecture is a slight variation of client-server, the ***leader-follower*** pattern:
+The project follows the MVC and ECS (Entity Component System) architecture.
+
+Zooming in on the distributed part, the adopted architecture is a slight variation of client-server, the ***leader-follower*** pattern:
 - The architecture is centralized by means of a server. However, it becomes an invisible detail for the user.
 - When the client attempts a connection to a server and it fails, it sets the server up and connects to it again.
   By doing so, this client becomes the leader;
@@ -127,7 +129,7 @@ and performs the following operations:
     
 This lets the architecture of the original project stay untouched, aside for the new `ServerManager` component provided by the MVC `Controller`:
 
-!(180x_)[ServerManager UML](img/class-uml/controller.svg "Position of the ServerManager in the MVC architecture.")
+!(180x_)[ServerManager UML](img/class-uml/controller.svg "Position of ServerManager in the MVC architecture.")
 
 ### Entities
 The domain entities are:
@@ -152,6 +154,8 @@ The decorator performs the exact same operations as the wrapped input (*proxy* p
 messages to the server at each performed action:
 
 ![Decorator](img/class-uml/event-decorator.svg "Class diagram of the input decorator.")
+
+<<<
 
 ### Events
 
@@ -201,8 +205,7 @@ Clients send only event messages to the server. The server can instead send one 
     - Online players and their score;
     - All entities in the world and their position, velocity and state.
 
-.box {TODO}
-    > Sequence diagrams are welcome here
+![Interaction UML](img/sequence-uml/interaction.svg "Sequence diagram of the interaction between two clients and the server.")
 
 ## Behaviour
 
