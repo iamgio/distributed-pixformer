@@ -60,7 +60,7 @@ dependencies {
 
     // Ktor
 
-    val ktorVersion = "3.0.2"
+    val ktorVersion = "3.1.0"
 
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
     implementation("io.ktor:ktor-server-netty:$ktorVersion")
