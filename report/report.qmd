@@ -327,9 +327,6 @@ due to timeout), the reconciliation will align its game state to the server's.
       ]
     }
     ```
-
-- The system does not really differentiate a win (hitting the end pole) from a loss: in either case the game ends for the player, who will then spectate until the game is over for all the players.
-  The only concrete difference is hitting the end pole awards 1000 points.
     
 - The server runs by default on port `8082` and features two endpoints:
   - `/ws`: endpoint for WebSocket exchanges;
