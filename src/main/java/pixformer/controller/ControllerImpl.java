@@ -66,7 +66,7 @@ public final class ControllerImpl implements Controller {
      * @param graphicsComponentFactory factory of graphics components
      */
     public ControllerImpl(final GameLoopManager gameLoopManager, final GraphicsComponentFactory graphicsComponentFactory) {
-        this(new LevelManagerImpl(), new ServerManagerImpl(), gameLoopManager, graphicsComponentFactory);
+        this(new LevelManagerImpl(), null, gameLoopManager, graphicsComponentFactory);
     }
 
     /**
@@ -79,16 +79,13 @@ public final class ControllerImpl implements Controller {
         }
 
         this.setupLevelChangeActions();
-        //this.setupServerConnectionActions();
         this.copyBuiltinLevelFiles();
-    }
-
-    private void createNewServerManager() {
-        this.serverManager.set(new ServerManagerImpl());
     }
 
     private void setupLevelChangeActions() {
         getLevelManager().addOnLevelStart((level, playersAmount) -> {
+            final ServerManager serverManager = new ServerManagerImpl(level.getData().name());
+            this.serverManager.set(serverManager);
             this.getServerManager().connectOrStart(); // Distributed patch!
             this.getServerManager().startRealignmentRoutine(level.getData().entityFactory());
             level.init();
@@ -98,12 +95,13 @@ public final class ControllerImpl implements Controller {
         getLevelManager().addOnLevelEnd((level, leaderboard) -> {
             this.getGameLoopManager().stop();
             this.getServerManager().disconnect();
-            this.serverManager.set(new ServerManagerImpl());
         });
     }
 
     private void setupServerConnectionActions(final ServerManager manager) {
-        manager.setLevelSupplier(() -> this.getLevelManager().getCurrentLevel().orElse(null));
+        if (manager != null) {
+            manager.setLevelSupplier(() -> this.getLevelManager().getCurrentLevel().orElse(null));
+        }
     }
 
     /**

@@ -19,6 +19,8 @@ import pixformer.server.MessageToServer
 import pixformer.server.PlayerConnectMessage
 import pixformer.server.Server
 import pixformer.server.ServerImpl
+import pixformer.server.gamefinder.GameFinderAgent
+import pixformer.server.gamefinder.HttpGameFinderAgent
 import kotlin.concurrent.thread
 import kotlin.jvm.optionals.getOrNull
 
@@ -34,17 +36,22 @@ private const val MAX_ATTEMPTS = 1
  */
 @Suppress("DeferredResultUnused")
 @OptIn(DelicateCoroutinesApi::class)
-class ServerManagerImpl : ServerManager {
+class ServerManagerImpl(
+    override val gameName: String,
+) : ServerManager {
     private var running = false
     private var server: Server? = null
     private val realigner = Realigner(this)
+    private val gameFinder: GameFinderAgent = HttpGameFinderAgent()
 
     private val onDispatchListeners = mutableListOf<(Command) -> Unit>()
 
     private val shutdownHookThreads = mutableSetOf<Thread>()
     private var realignmentThread: Thread? = null
 
+    override var host: String = "localhost"
     override val port: Int = PORT
+
     override val isLeader: Boolean
         get() = server != null
 
@@ -76,10 +83,22 @@ class ServerManagerImpl : ServerManager {
     override fun startServer() {
         server = ServerImpl(this)
         server!!.start(port)
+
+        /*if (!gameFinder.addGame(gameName, host)) {
+            throw IOException("Could not add game to game finder.")
+        }*/
     }
 
     override fun connectToServer() {
         running = true
+
+        /*if (!isLeader) {
+            gameFinder.getGameIp("pixformer")
+                ?.let { host = it }
+                ?: throw IOException("Could not retrieve game IP.")
+
+            println("Connecting to server at $address")
+        }*/
 
         // Add a shutdown hook to disconnect from the server.
         Thread { disconnect() }.let {
@@ -155,7 +174,10 @@ class ServerManagerImpl : ServerManager {
         realignmentThread?.interrupt()
 
         // Stop the server if this client is the leader.
-        server?.let { thread { it.stop() } }
+        server?.let {
+            gameFinder.removeGame(gameName)
+            thread { it.stop() }
+        }
 
         // Remove the shutdown hooks.
         try {

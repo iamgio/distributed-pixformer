@@ -26,7 +26,7 @@ class RealignRequest {
         launch(Dispatchers.IO) {
             val client = HttpClient(CIO)
 
-            val response = client.get("http://localhost:${manager.port}/${Endpoints.REALIGN}")
+            val response = client.get("http://${manager.address}/${Endpoints.REALIGN}")
 
             client.close()
 

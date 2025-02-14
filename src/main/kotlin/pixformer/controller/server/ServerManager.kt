@@ -13,6 +13,11 @@ import pixformer.model.modelinput.CompleteModelInput
  */
 interface ServerManager {
     /**
+     * The name of the game (level) that is being played.
+     */
+    val gameName: String
+
+    /**
      * Players that have connected to the server.
      * Associates player index with its player object.
      */
@@ -34,9 +39,20 @@ interface ServerManager {
     val isLeader: Boolean
 
     /**
+     * The host on which the server is running.
+     */
+    val host: String
+
+    /**
      * The port on which the server is running.
      */
     val port: Int
+
+    /**
+     * The address of the server in the format "host:port".
+     */
+    val address: String
+        get() = "$host:$port"
 
     /**
      * Action run the reconciliation process is performed.

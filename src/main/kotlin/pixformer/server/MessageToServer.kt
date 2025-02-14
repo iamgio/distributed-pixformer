@@ -40,7 +40,7 @@ data class MessageToServer(
                 // Session set up.
                 val session =
                     client.webSocketSession {
-                        url("ws://localhost:${manager.port}/$endpoint?type=${type.name}")
+                        url("ws://${manager.address}/$endpoint?type=${type.name}")
                     }
 
                 manager.session = session
