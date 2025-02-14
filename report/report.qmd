@@ -36,11 +36,10 @@ No data is stored persistently, but a lot of information needs to be exchanged.
 
 - While in the main menu, the user will be able to select a level to play.  
   If a game does not exist yet, it will be created and said user becomes its leader.  
-  The system must be scalable enough to allow players to join a game at any time;
+  The system must be scalable enough to allow players to join a game at any time.
   
-- Fault tolerance: if a player goes offline he will be kicked out of the game, and will be able to join again
-  and start from his previous position and statistics.
-    - However, if the leader goes offline, the game will end.
+- Fault tolerance: if a player goes offline he will be kicked out of the game, and will be able to join again.
+  However, if the leader goes offline, the game will end.
 
 - During the game, a player will encounter different enemies, each with their own behavior:
     - Goomba: a small, brown, walking mushroom that can be defeated by jumping on it;
@@ -58,6 +57,8 @@ No data is stored persistently, but a lot of information needs to be exchanged.
     - Indestructible: cannot be destroyed.
 
 - Each player has a score, which is earned by collecting coins and defeating enemies. The leaderboard can be seen both during and after a game.
+
+- When the user finishes its game, either by winning or losing, he will be able to spectate the game.
 
 - A player's game ends if he: 
     - is damaged while in the smallest state;
@@ -266,7 +267,7 @@ due to timeout), the reconciliation will align its game state to the server's.
     
 - Ping (heart-beating) and timeout parameters match to 10 seconds: if a ping to the server fails, the session is closed;
     
-- Client-to-server event messages are triggered by a `Decorator` that wraps the original player's input component, while also sending the corresponding message, on the active WebSocket session, for each action:
+- Client-to-server event messages are triggered by the `ServerEventCompleteModelInputDecorator` that wraps the original player's input component, while also sending the corresponding message, on the active WebSocket session, for each action:
     
   ```kotlin
   class ServerEventCompleteModelInputDecorator(
@@ -314,16 +315,38 @@ due to timeout), the reconciliation will align its game state to the server's.
       ]
     }
     ```
+
+- The system does not really differentiate a win (hitting the end pole) from a loss: in either case the game ends for the player, who will then spectate until the game is over for all the players.
+  The only concrete difference is hitting the end pole awards 1000 points.
     
 - The server runs by default on port `8082` and features two endpoints:
   - `/ws`: endpoint for WebSocket exchanges;
   - `/realign`: HTTP GET endpoint for fetching the centralized game state.
+  
+- The only significant change brought to the original Java project is the `Controller`-`ServerManager` link.
+  This is handled via a convenient application of the *observable* pattern on the current level, set up during the initialization of the controller:
+  ```java
+  // ControllerImpl.java
+  
+  getLevelManager().addOnLevelStart((level, playerAmount) -> {
+      this.getServerManager().connectOrStart();
+      this.getServerManager()
+          .startRealignmentRoutine(level.getData().entityFactory());
+      level.init();
+      this.getGameLoopManager().start();
+  });
+
+  getLevelManager().addOnLevelEnd((level, leaderboard) -> {
+      this.getGameLoopManager().stop();
+      this.getServerManager().disconnect();
+  });
+  ```
 
 ## Technological details
 
 - The base game was developed in Java;
 
-- The distributed enhancement was developed in Kotlin, with the [Ktor](https://ktor.io) framework, used with Netty;
+- The distributed enhancement was developed in Kotlin, with the [Ktor](https://ktor.io) framework, used in combination with Netty;
 
 - The WebSocket protocol does not natively provide a broadcast feature, which was instead made possible by using Kotlin Coroutine's shared message flows, which collect and store each session.
 
