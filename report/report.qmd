@@ -58,7 +58,7 @@ No data is stored persistently, but a lot of information needs to be exchanged.
 
 - Each player has a score, which is earned by collecting coins and defeating enemies. The leaderboard can be seen both during and after a game.
 
-- When the user finishes its game, either by winning or losing, he will be able to spectate the game.
+- When the user finishes its game, either by winning or losing, he will be able to spectate the other players, or leave at any time.
 
 - A player's game ends if he: 
     - is damaged while in the smallest state;
@@ -221,14 +221,26 @@ The following subsections will describe its components in detail.
 
 ## Behaviour
 
-- how does _each_ component __behave__ individually (e.g. in _response_ to _events_ or messages)?
-    * some components may be _stateful_, others _stateless_
+The client side of the system is heavily stateful:
+- The main menu is displayed at the beginning. Choosing a level starts the game;
+- The player can hit a power-up item, mushroom or fire flower, to absorb that specific power and obtain points;
+- When a surprise block is bumped from below a power-up item is spawned once. After that, the block is deactivated;
+- The player can hit coins to collect them;
+- The player can jump onto enemies to obtain points and alter the enemy state:
+  - A Goomba disappears;
+  - A walking Koopa transforms into a shell Koopa;
+- When the player is touched by an enemy:
+  - If his current power-up is fire flower, it is brought down to mushroom;
+  - If his current power-up is mushroom, it is brought down to the smallest state;
+  - If he is in the smallest state, his game is over;
+- If the player falls into a pit, his game is over regardless of any active power-up;
+- If the player hits the end pole, he is awarded 1000 points and his game is over;
+- When a player's game is over, the user will be able to spectate the other players as long as there are any;
+- At any time the user can exit the game and go to the main menu.
 
-- which components are in charge of updating the __state__ of the system? _when_? _how_?
+![Player state UML](img/state-uml/player.svg "State UML of the player lifecycle.")
 
-
-
-> State diagrams are welcome here
+The server, instead, is stricly stateless. However, if more generically seen as the union of the server and the leader client, it acts as the authorative, stateful, source of truth being in charge of the updates.
 
 ## Data and Consistency Issues
 
