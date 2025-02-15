@@ -1,6 +1,6 @@
 package pixformer;
 
-import pixformer.controller.gamefinder.HttpGameFinderAgent;
+import pixformer.controller.gamefinder.ServerGameFinderAgent;
 import pixformer.view.engine.ViewLauncher;
 import pixformer.view.javafx.PixformerJavaFXViewLauncher;
 
@@ -21,7 +21,7 @@ public final class Pixformer {
         // The optional argument is the IP address of the game finder server,
         // which defaults to "localhost".
         if (args.length > 0) {
-            HttpGameFinderAgent.Companion.setIp(args[0]);
+            ServerGameFinderAgent.Companion.setIp(args[0]);
         }
 
         final ViewLauncher launcher = new PixformerJavaFXViewLauncher();

@@ -9,9 +9,9 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import kotlinx.io.IOException
 import pixformer.controller.gamefinder.GameFinderAgent
-import pixformer.controller.gamefinder.HttpGameFinderAgent
 import pixformer.controller.gamefinder.LocalGameFinderAgent
 import pixformer.controller.gamefinder.Network
+import pixformer.controller.gamefinder.ServerGameFinderAgent
 import pixformer.controller.realign.Realigner
 import pixformer.controller.server.command.Command
 import pixformer.model.Level
@@ -81,7 +81,7 @@ class ServerManagerImpl(
             }
         }
 
-        gameFinder = HttpGameFinderAgent().takeIf { it.isAccessible() }
+        gameFinder = ServerGameFinderAgent().takeIf { it.isAccessible() }
             ?: LocalGameFinderAgent()
 
         println("Using game finder agent: ${gameFinder::class.simpleName}")

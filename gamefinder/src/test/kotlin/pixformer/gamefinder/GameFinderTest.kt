@@ -1,7 +1,7 @@
 package pixformer.gamefinder
 
 import org.junit.jupiter.api.Test
-import pixformer.controller.gamefinder.HttpGameFinderAgent
+import pixformer.controller.gamefinder.ServerGameFinderAgent
 import kotlin.concurrent.thread
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -14,7 +14,7 @@ import kotlin.test.assertTrue
 class GameFinderTest {
     @Test
     fun test() {
-        val agent = HttpGameFinderAgent()
+        val agent = ServerGameFinderAgent()
 
         assertFalse(agent.isAccessible())
 

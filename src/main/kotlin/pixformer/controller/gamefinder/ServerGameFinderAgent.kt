@@ -11,7 +11,7 @@ import kotlinx.coroutines.runBlocking
  * Implementation of [GameFinderAgent] that communicates with the game finder server via HTTP.
  */
 @Suppress("HttpUrlsUsage")
-class HttpGameFinderAgent : GameFinderAgent {
+class ServerGameFinderAgent : GameFinderAgent {
     private val client = HttpClient(CIO)
 
     private val url: String
