@@ -98,7 +98,7 @@ being a better fault tolerance in case the leader goes offline.
 - For development and simplicity purposes, all clients were run on the same machine.
   However, it is possible for clients to be distributed across the world as long as the leader's firewall
   accepts connections from outside the network;
-- In order to allow different machines in the network to find an open game, an additional server is introduced: the *game finder*, which acts like a DNS server by internally storing the IP address of the leader clients, associated to the game level they are hosting. This makes it possible for clients to dynamically discover game servers, as long as they know in advance the address of the game finder server;
+- In order to allow different machines in the network to find an open game, an additional server is introduced: the *game finder*, which acts like a dynamic DNS server by internally storing the IP address of the leader clients, associated to the game level they are hosting. This makes it possible for clients to dynamically discover game servers, as long as they know in advance the address of the game finder server;
 - Data isn't stored persistently, and the state of the game is replicated on all $ N $ clients. The game finder server stores an IP address only while the corresponding game is running, in a volatile way;
 - No authentication is performed, mutual trust is assumed;
 - Communication is performed via a *publish-subscribe* pattern: since the game is heavily event-based,
@@ -175,6 +175,8 @@ Domain events are:
     - damages player;
     - changes state (e.g. Koopa retreats in its shell);
     
+<<<
+
 #### Commands
 
 The subset of events that are directly triggered by user inputs are modeled by a `Command` class:
@@ -242,10 +244,10 @@ Since the server matches with the leader's client and they share the same game s
 
 ## Behaviour
 
-The client side of the system is heavily stateful:
+The client-side of the system is heavily stateful:
 - The main menu is displayed at the beginning. Choosing a level starts the game;
 - The player can hit a power-up item, mushroom or fire flower, to absorb that specific power and obtain points;
-- When a surprise block is bumped from below a power-up item is spawned once. After that, the block is deactivated;
+- When a surprise block is bumped from below, a power-up item is spawned once. After that, the block is deactivated;
 - The player can hit coins to collect them;
 - The player can jump onto enemies to obtain points and alter the enemy state:
   - A Goomba disappears;
@@ -259,7 +261,7 @@ The client side of the system is heavily stateful:
 - When a player's game is over, the user will be able to spectate the other players as long as there are any;
 - At any time the user can exit the game and go to the main menu.
 
-![Player state UML](img/state-uml/player.svg "State UML of the player lifecycle.")
+![Player state UML](img/state-uml/player.svg "State diagram of the player lifecycle.")
 
 The server, instead, is stricly stateless. However, if more generically seen as the union of the server and the leader client, it acts as the authorative, stateful, source of truth being in charge of the updates.
 
@@ -353,7 +355,7 @@ due to timeout), the reconciliation will align its game state to the server's.
     }
     ```
     
-- The server runs by default on port `8082` and features two endpoints:
+- The game server runs by default on port `8082` and features two endpoints:
   - `/ws`: endpoint for WebSocket exchanges;
   - `/realign`: HTTP GET endpoint for fetching the centralized game state.
   
@@ -384,7 +386,7 @@ The game finder server is a web server, running on port `8083`, with the followi
 - `/add?name=<name>&ip=<ip>` (POST): registers a name-address mapping, if an address is not already present for the given name;
 - `/remove?name=<name>` (POST): removes the entry associated with the given name.
 
-To communicate with the server, the client use an agent that models said operations.
+To communicate with the server, the client uses an agent that models said operations.
 In order to tolerate the unavailability of the game finder server, two distinct implementations of the agent are provided:
 - One that communicates with the server via HTTP;
 - A "mock" implementation that does not perform any add/remove operation, and always returns `localhost` as the game address. This implementation is used if the server is unreachable.
