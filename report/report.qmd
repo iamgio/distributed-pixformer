@@ -442,6 +442,9 @@ Manual testing was performed for:
 - Update of the game world after receiving the centralized game state: the update of the game world is strictly bound to the game loop and its command queue, making it difficult (although not impossible) to test automatically;
 - Triggering of event messages on player actions: this is tightly related to user input and interaction, which is more intuitive when tested manually.
 
+Please note that the system was manually tested, on a single machine, on macOS 15 and, minimally, on Windows 10.
+The original game was also tested on Linux.
+
 # Release
 
 The project is structured into two modules:
@@ -464,11 +467,30 @@ A game window will open from the main menu. Games can be joined from there.
 
 # User Guide
 
-- how to use your software?
-    * provide instructions
-    * provide expected outcomes
-    * provide screenshots if possible
+Step 0 (optional): launching the game finder server enables finding games from the network. If the game finder server is active on another machine, you can pass its address (only IP, not port, which is fixed to 8083) as the only command-line argument.
 
+After launching the game, the main menu is displayed. From there, the user can choose a level to play (only one is provided: *Level 1*).
+
+![Menu](img/screenshots/menu.png "The main menu")
+
+|   Jump  | Move right | Move left | Ability (fireball) | Sprint | Go to menu |
+|:-------:|:----------:|:----------|:------------------:|:------:|:----------:|
+| W/Space | D          | A         | Shift              | CTRL   | ESC        |
+"In-game key bindings"
+
+Other clients can subsequently join the same level.
+
+The game follows the same behavior as the original *Super Mario Bros.*: long-pressing the *Jump* key increases the jump height, and horizontal movements are affected by inertia.
+
+In order to get to the end of the level (the end pole), you can:
+- Hit, jumping, surprise blocks from below to spawn power-ups. Collect power-ups to gain new powers;
+- Jump on enemies' heads to defeat them.
+
+> Note: Remember that going to menu as the leader client shuts the server down.
+
+!(_x300)[Game](img/screenshots/game1.png)
+
+!(_x300)[Game](img/screenshots/game2.png)
 
 # Self-evaluation
 
