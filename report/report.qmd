@@ -109,8 +109,7 @@ being a better fault tolerance in case the leader goes offline.
     it is the source of truth which periodically sends alignment updates to clients (see *Interaction*).
   - The rendering process is performed on the client side.
 
-.box {TO DO}
-    > Component diagrams are welcome here
+!(400x_)[Infrastructure UML](img/component-uml/infrastructure.svg "Component diagram of the infrastructure.")
 
 <<<
 
@@ -434,14 +433,21 @@ This implementation switching mechanism offers the caller an opaque representati
 
 # Release
 
-The project is structured into a single module, which is divided into two distinct parts: the `java` source root houses the original base project, containing the front-end and the entire game logic, while the `kotlin` source root contains the distributed features. These two parts are connected by the `Controller`.
+The project is structured into two modules:
+- The game (root module), divided into two distinct parts: the `java` source root houses the original base project, containing the front-end and the entire game logic, while the `kotlin` source root contains the distributed features. These two parts are connected by the `Controller` (present in the Java part).  
+  Since the leader-follower pattern is used and the concepts of client and server overlap, splitting the two components into two different modules was not needed.
+- The game finder server (module `gamefinder`), extremely small and compact.
 
-Since there is no clear distinction between a client and a server from the user’s perspective, the artifact is packaged in a single JAR archive, available for download on GitHub Releases.
+The JAR executables are available for download on [GitHub Releases](https://github.com/iamgio/distributed-pixformer/releases), or can be built from source (see *Deployment*).
 
 # Deployment
 
-1. `./gradlew clean build`
-2. `java -jar build/libs/pixformer-1.0-SNAPSHOT-all.jar`
+1. Build:  
+   `./gradlew clean build`
+2. Start game finder server (optional, but suggested):  
+   `java -jar build/libs/gamefinder-1.0-SNAPSHOT-all.jar`
+3. Launch game:  
+   `java -jar build/libs/pixformer-1.0-SNAPSHOT-all.jar`
 
 A game window will open from the main menu. Games can be joined from there.
 
