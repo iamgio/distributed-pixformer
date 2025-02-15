@@ -30,9 +30,10 @@ class HttpGameFinderAgent : GameFinderAgent {
     override fun getGameIp(name: String): String? =
         runBlocking {
             try {
-                val response: HttpResponse = client.get("$url/get") {
-                    url { parameters.append("name", name) }
-                }
+                val response: HttpResponse =
+                    client.get("$url/get") {
+                        url { parameters.append("name", name) }
+                    }
                 response.bodyAsText().takeIf { response.status.value == 200 }
             } catch (e: Exception) {
                 null
@@ -45,12 +46,13 @@ class HttpGameFinderAgent : GameFinderAgent {
     ): Boolean =
         runBlocking {
             try {
-                client.get("$url/add") {
-                    url {
-                        parameters.append("name", name)
-                        parameters.append("ip", ip)
-                    }
-                }.status.value == 200
+                client
+                    .get("$url/add") {
+                        url {
+                            parameters.append("name", name)
+                            parameters.append("ip", ip)
+                        }
+                    }.status.value == 200
             } catch (e: Exception) {
                 false
             }
@@ -59,9 +61,10 @@ class HttpGameFinderAgent : GameFinderAgent {
     override fun removeGame(name: String): Boolean =
         runBlocking {
             try {
-                client.get("$url/remove") {
-                    url { parameters.append("name", name) }
-                }.status.value == 200
+                client
+                    .get("$url/remove") {
+                        url { parameters.append("name", name) }
+                    }.status.value == 200
             } catch (e: Exception) {
                 false
             }

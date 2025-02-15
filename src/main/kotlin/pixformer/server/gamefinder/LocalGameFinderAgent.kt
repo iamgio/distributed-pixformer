@@ -7,9 +7,13 @@ package pixformer.server.gamefinder
  */
 class LocalGameFinderAgent : GameFinderAgent {
     override fun isAccessible(): Boolean = true
+
     override fun getGameIp(name: String) = "localhost"
 
-    override fun addGame(name: String, ip: String): Boolean = true
+    override fun addGame(
+        name: String,
+        ip: String,
+    ): Boolean = true
 
     override fun removeGame(name: String): Boolean = true
 }

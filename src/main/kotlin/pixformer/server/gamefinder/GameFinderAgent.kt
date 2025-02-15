@@ -18,7 +18,10 @@ interface GameFinderAgent {
      * Adds a new game with the given name and IP.
      * @return whether the game was successfully added
      */
-    fun addGame(name: String, ip: String): Boolean
+    fun addGame(
+        name: String,
+        ip: String,
+    ): Boolean
 
     /**
      * Removes the game with the given name.

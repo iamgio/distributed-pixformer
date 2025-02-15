@@ -74,7 +74,10 @@ fun startGameFinderServer() {
 
                     name in games -> {
                         // Room exists.
-                        call.respondText("Game room '$name' already exists with IP: ${games[name]!!}", status = HttpStatusCode.Conflict)
+                        call.respondText(
+                            "Game room '$name' already exists with IP: ${games[name]!!}",
+                            status = HttpStatusCode.Conflict,
+                        )
                     }
 
                     else -> {
