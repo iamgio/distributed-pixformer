@@ -472,7 +472,9 @@ A game window will open from the main menu. Games can be joined from there.
 
 # Self-evaluation
 
-- An individual section is required for each member of the group
-- Each member must self-evaluate their work, listing the strengths and weaknesses of the product
-- Each member must describe their role within the group as objectively as possible. 
-It should be noted that each student is only responsible for their own section
+#### Garofalo Giorgio
+
+I enjoyed working on this project, as it involved a lot of pre-planning to give life to a maintainable, modular product. I put a considerable effort into this project, and I feel satisfied with the final product in its integrity.  
+I find its strengths in the ease of connecting with other clients and smoothness of the gameplay, while I find its biggest weakness in the sometimes-big difference between what the client sees and the game state received from the reconciliation, meaning there is some discrepancy between the direct user input and what the server evaluates. I struggled, unfortunately, to find a solution to this issue.
+
+Taking on an already big project (credits go to my original team), an intriguing challenge was finding out how to connect the 'old' with the 'new' while altering as few elements as possible from the legacy codebase.
