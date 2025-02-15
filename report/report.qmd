@@ -26,9 +26,9 @@ Players take on the role of Mario, competing against each other to reach the end
 
 The users will be interacting with the system while sitting in front of their own computer, connected to the Internet from different locations.
 Although games will be started sporadically, interactions during a level are highly frequent
-and happen via keyboard commands, which trigger events whose results are displayed on screen.
+and happen via keyboard commands, which trigger events, the results of which are displayed on screen.
 
-No data is stored persistently, but a lot of information needs to be exchanged.
+No data is stored persistently, but a massive amount of information needs to be exchanged.
 
 # Requirements
 
@@ -95,11 +95,11 @@ being a better fault tolerance in case the leader goes offline.
 
 - Each player is a client. $ N $ players can join a game;
 - There is one server per game, located on the same machine as the leader client;
-- For development and simplicity purposes, all clients will be running on the same machine.
+- For development and simplicity purposes, all clients were run on the same machine.
   However, it is possible for clients to be distributed across the world as long as the leader's firewall
-  accepts connections from outside the network. An additional centralized server might however be needed in order to allow searching for ready-to-join games;
-- Data isn't stored persistently, and the state of the game is replicated on all $ N $ clients;
-- Clients are assumed to know the IP of the server;
+  accepts connections from outside the network;
+- In order to allow different machines in the network to find an open game, an additional server is introduced: the *game finder*, which acts like a DNS server by internally storing the IP address of the leader clients, associated to the game level they are hosting. This makes it possible for clients to dynamically discover game servers, as long as they know in advance the address of the game finder server;
+- Data isn't stored persistently, and the state of the game is replicated on all $ N $ clients. The game finder server stores an IP address only while the corresponding game is running, in a volatile way;
 - No authentication is performed, mutual trust is assumed;
 - Communication is performed via a *publish-subscribe* pattern: since the game is heavily event-based,
   clients will mainly announce the trigger of an event to the server, which may process it and eventually
@@ -195,29 +195,51 @@ Aside for alignment messages (see *Interaction*), these events represent the onl
 The system adopts a ***client-side prediction and server reconciliation*** pattern.
 The following subsections will describe its components in detail.
 
+#### Game finding
+
+When a client chooses a level to play, the game finder server is reached to look for any active games on the same level, or to create one otherwise.
+
+The game finder server is not strictly needed: in case a connection cannot be established, the system assumes to join or create the game on the local machine.
+
+1. Assuming the game finder server is up and running, the client attempts at retrieving the IP associated with the selected level;
+2. If found, the server at said address is reached to join the game. If not found, the client, which is now the leader, asks the game finder to register a new game associated to its IP address;
+3. When the game server is shut down, it is removed from the game finder.
+
+!(600x_)[Game finding UML](img/sequence-uml/gamefinder.svg "Sequence diagram of game finding.")
+
+<<<
+
 #### Handshake
 
-- As soon as a new client connects to the server, a handshake is required in order to assign the player index to the new client. This index is incremental and acts as an identifier for the client. When the handshake is complete, the client can start playing.
-- At connection time, a *hello* message is sent from the client to the server;
-- The server decides the client's index and sends it as a response.
+As soon as a new client connects to the game server, a handshake is required in order to assign the player index to the new client. This index is incremental and acts as an identifier for the client. When the handshake is complete, the client can start playing.
+
+1. At connection time, a *hello* message is sent from the client to the server;
+2. The server decides the client's index and sends it as a response.
 
 !(400x_)[Handshake UML](img/sequence-uml/handshake.svg "Sequence diagram of client-server handshake.")
 
+<<<
+
 #### User input events
-- The client processes user inputs (player movement, jump, sprint and ability) immediately in order to provide a responsive and smooth experience,
+1. The client processes user inputs (player movement, jump, sprint and ability) immediately in order to provide a responsive and smooth experience,
   updating its local game state independently. The event message, along with the player identifier, is sent to the server;
-- The server receives the event, updates its internal game state and forwards, via broadcast, the event message to the other clients,
+2. The server receives the event, updates its internal game state and forwards, via broadcast, the event message to the other clients,
   which update their game state as well;
 
 ![User inputs UML](img/sequence-uml/input.svg "Sequence diagram of input events.")
 
+<<<
+
 #### Game state reconciliation
 
-- Each client periodically sends a reconciliation request to the server, the authoritative source of truth, which sends its internal game state as a response.
-  This ensures consistency across clients, which may otherwise be compromised by latency or packet loss;
-- Since the server matches with the leader's client and they share the same game state, reconciliation is not performed on the leader's client.
+Each client periodically sends a reconciliation request to the server, the authoritative source of truth, which sends its internal game state as a response.
+This ensures consistency is kept across clients, which may otherwise be compromised by latency or packet loss;
+
+Since the server matches with the leader's client and they share the same game state, reconciliation is not performed on the leader's client.
 
 ![Reconciliation UML](img/sequence-uml/reconciliation.svg "Sequence diagram of the game state reconciliation.")
+
+<<<
 
 ## Behaviour
 
@@ -242,6 +264,8 @@ The client side of the system is heavily stateful:
 
 The server, instead, is stricly stateless. However, if more generically seen as the union of the server and the leader client, it acts as the authorative, stateful, source of truth being in charge of the updates.
 
+The game finder server is stateless, as it serves as a volatile storage.
+
 ## Data and Consistency Issues
 
 Although no peristent data is stored, volatile game data is shared and replicated between clients. 
@@ -255,7 +279,9 @@ Consistency is guaranteed through periodic reconciliation with the server, as al
 
 - Heart-beating and timeout are used, as provided by the framework (see *Implementation*);
 
-- If a client quits the game or crashes, its corresponding player entity is removed from the server and clients.
+- If a client quits the game or crashes, its corresponding player entity is removed from the server and clients;
+
+- In order to avoid relying heavily on yet another component, the game finder server is optional - although encouraged to use. If the server is not accessible, the system will look for games on the local machine.
 
 ### Availability
 
@@ -339,8 +365,6 @@ due to timeout), the reconciliation will align its game state to the server's.
   
   getLevelManager().addOnLevelStart((level, playerAmount) -> {
       this.getServerManager().connectOrStart();
-      this.getServerManager()
-          .startRealignmentRoutine(level.getData().entityFactory());
       level.init();
       this.getGameLoopManager().start();
   });
@@ -351,13 +375,36 @@ due to timeout), the reconciliation will align its game state to the server's.
   });
   ```
 
+<<<
+
+#### Game finder
+
+The game finder server is a web server, running on port `8083`, with the following endpoints:
+- `/check` (GET): used to check the availability of the server;
+- `/get?name=<name>` (GET): returns the IP of the server associated with the given level name, if it exists;
+- `/add?name=<name>&ip=<ip>` (POST): registers a name-address mapping, if an address is not already present for the given name;
+- `/remove?name=<name>` (POST): removes the entry associated with the given name.
+
+To communicate with the server, the client use an agent that models said operations.
+In order to tolerate the unavailability of the game finder server, two distinct implementations of the agent are provided:
+- One that communicates with the server via HTTP;
+- A "mock" implementation that does not perform any add/remove operation, and always returns `localhost` as the game address. This implementation is used if the server is unreachable.
+
+This implementation switching mechanism offers the caller an opaque representation of the underlying process.
+
+!(350x_)[Game finder agent UML](img/class-uml/gamefinderagent.svg "Class diagram of the game finder agent hierarchy.")
+
+<<<
+
 ## Technological details
 
 - The base game was developed in Java;
 
-- The distributed enhancement was developed in Kotlin, with the [Ktor](https://ktor.io) framework, used in combination with Netty;
+- The distributed system was developed in Kotlin, with the [Ktor](https://ktor.io) framework, used in combination with Netty;
 
-- The WebSocket protocol does not natively provide a broadcast feature, which was instead made possible by using Kotlin Coroutine's shared message flows, which collect and store each session.
+- The WebSocket protocol does not natively provide a broadcast feature, which was instead made possible by using Kotlin Coroutine's shared message flows, which collect and store each session;
+
+- [Ktlint](https://github.com/pinterest/ktlint) was used to ensure a consistent code style across the Kotlin codebase.
 
 # Validation
 
