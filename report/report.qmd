@@ -409,27 +409,38 @@ This implementation switching mechanism offers the caller an opaque representati
 
 ## Automatic Testing
 
-- how were individual components **_unit_-test**ed?
-- how was communication, interaction, and/or integration among components tested?
-- how to **_end-to-end_-test** the system?
-    * e.g. production vs. test environment
+Components were unit-tested by creating a mock, simplified environment. Tests can be run via `./gradlew test`.
 
-- for each test specify:
-    * rationale of individual tests
-    * how were the test automated
-    * how to run them
-    * which requirement they are testing, if any
+- *Game* tests (unimportant for this report's purposes)
+  - Tested the correct execution and dynamics of the game loop and interaction between game entities.
 
-> recall that _deployment_ __automation__ is commonly used to _test_ the system in _production-like_ environment
+- *Client-server* tests
+  - The purpose is testing the communication and interaction between two independent clients and the game server;
+  - All three components are represented by three `ServerManager` fields, hence testing the opaqueness that allows for the leader-follower pattern;
+  - Connections are tested by ensuring the server has the correct amount of active players after both clients connected;
+  - Handshake is tested by checking for an incremental assignment of the player index for each client;
+  - Event broadcasting and dispatching of their corresponding command are tested by letting one client send an event message to server, to make sure the other client receives the corresponding command (e.g. a `PlayerJumpMessage` corresponds to a `JumpCommand`);
+  - Disconnection is tested by disconnecting one client and making sure the number of active players decreased.
 
-> recall to test corner cases (crashes, errors, etc.)
+- *Command* tests
+  - The purpose is testing the serialization and deserialization of commands to be sent across components;
+  - Correctness is tested by serializing and deserializing a command, ensuring the before and after represent the same information.
+
+- *Game state* tests
+  - The purpose is testing the JSON serialization and deserialization of the game state that is sent in response to reconciliation requests;
+  - Correctness is tested by serializing and deserializing a level, ensuring the before and after represent the same information;
+  - Critical aspects include de-serialization of entities, including both common information (position and velocity) and entity-specific (e.g. player's current power-up, whether a surprise block was deactivated, etc.), along with players' score.
+
+- *Game finder* tests
+  - The purpose is testing for the correct interaction between a client and the game finder server;
+  - The game finder server is started, and a `ServerGameFinderAgent` is used to make requests to the server;
+  - Retrieval and updating is tested by adding games, retrieving their address, and removing them, including the corner case of duplicate entries.
 
 ## Acceptance test
 
-- did you perform any _manual_ testing?
-    * what did you test?
-    * why wasn't it automatic?
-
+Manual testing was performed for:
+- Update of the game world after receiving the centralized game state: the update of the game world is strictly bound to the game loop and its command queue, making it difficult (although not impossible) to test automatically;
+- Triggering of event messages on player actions: this is tightly related to user input and interaction, which is more intuitive when tested manually.
 
 # Release
 
