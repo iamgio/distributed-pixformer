@@ -70,6 +70,10 @@ dependencies {
     implementation("org.slf4j:slf4j-simple:2.0.16")
 }
 
+tasks.build {
+    dependsOn("shadowJar")
+}
+
 tasks.getByName<Test>("test") {
     useJUnitPlatform()
 }
