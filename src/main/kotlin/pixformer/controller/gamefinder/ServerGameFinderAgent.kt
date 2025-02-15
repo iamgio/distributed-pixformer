@@ -3,6 +3,7 @@ package pixformer.controller.gamefinder
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
 import io.ktor.client.request.get
+import io.ktor.client.request.post
 import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsText
 import kotlinx.coroutines.runBlocking
@@ -47,7 +48,7 @@ class ServerGameFinderAgent : GameFinderAgent {
         runBlocking {
             try {
                 client
-                    .get("$url/add") {
+                    .post("$url/add") {
                         url {
                             parameters.append("name", name)
                             parameters.append("ip", ip)
@@ -62,7 +63,7 @@ class ServerGameFinderAgent : GameFinderAgent {
         runBlocking {
             try {
                 client
-                    .get("$url/remove") {
+                    .post("$url/remove") {
                         url { parameters.append("name", name) }
                     }.status.value == 200
             } catch (e: Exception) {

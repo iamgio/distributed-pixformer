@@ -8,6 +8,7 @@ import io.ktor.server.netty.Netty
 import io.ktor.server.response.respondText
 import io.ktor.server.routing.RoutingCall
 import io.ktor.server.routing.get
+import io.ktor.server.routing.post
 import io.ktor.server.routing.routing
 import java.util.concurrent.ConcurrentHashMap
 
@@ -58,7 +59,7 @@ fun startGameFinderServer() {
                 logGames()
             }
 
-            get("/add") {
+            post("/add") {
                 // Extract query parameters
                 val name = call.request.queryParameters["name"]
                 val ip = call.request.queryParameters["ip"]
@@ -90,7 +91,7 @@ fun startGameFinderServer() {
                 logGames()
             }
 
-            get("/remove") {
+            post("/remove") {
                 val name = call.request.queryParameters["name"]
 
                 when {
