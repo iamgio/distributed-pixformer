@@ -8,6 +8,10 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import kotlinx.io.IOException
+import pixformer.controller.gamefinder.GameFinderAgent
+import pixformer.controller.gamefinder.HttpGameFinderAgent
+import pixformer.controller.gamefinder.LocalGameFinderAgent
+import pixformer.controller.gamefinder.Network
 import pixformer.controller.realign.Realigner
 import pixformer.controller.server.command.Command
 import pixformer.model.Level
@@ -18,10 +22,6 @@ import pixformer.server.MessageToServer
 import pixformer.server.PlayerConnectMessage
 import pixformer.server.Server
 import pixformer.server.ServerImpl
-import pixformer.server.gamefinder.GameFinderAgent
-import pixformer.server.gamefinder.HttpGameFinderAgent
-import pixformer.server.gamefinder.LocalGameFinderAgent
-import pixformer.server.gamefinder.Network
 import kotlin.concurrent.thread
 import kotlin.jvm.optionals.getOrNull
 

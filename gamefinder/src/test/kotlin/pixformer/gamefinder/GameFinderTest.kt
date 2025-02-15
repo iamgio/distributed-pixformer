@@ -1,7 +1,7 @@
 package pixformer.gamefinder
 
 import org.junit.jupiter.api.Test
-import pixformer.server.gamefinder.HttpGameFinderAgent
+import pixformer.controller.gamefinder.HttpGameFinderAgent
 import kotlin.concurrent.thread
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse

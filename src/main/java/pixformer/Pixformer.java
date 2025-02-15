@@ -1,6 +1,6 @@
 package pixformer;
 
-import pixformer.server.gamefinder.HttpGameFinderAgent;
+import pixformer.controller.gamefinder.HttpGameFinderAgent;
 import pixformer.view.engine.ViewLauncher;
 import pixformer.view.javafx.PixformerJavaFXViewLauncher;
 

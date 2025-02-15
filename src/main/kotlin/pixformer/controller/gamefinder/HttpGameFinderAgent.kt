@@ -1,4 +1,4 @@
-package pixformer.server.gamefinder
+package pixformer.controller.gamefinder
 
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO

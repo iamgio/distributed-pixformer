@@ -1,4 +1,4 @@
-package pixformer.server.gamefinder
+package pixformer.controller.gamefinder
 
 /**
  * A communication bridge for finding games.

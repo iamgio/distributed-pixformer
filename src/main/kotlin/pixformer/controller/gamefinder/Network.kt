@@ -1,4 +1,4 @@
-package pixformer.server.gamefinder
+package pixformer.controller.gamefinder
 
 import java.net.Inet4Address
 import java.net.NetworkInterface

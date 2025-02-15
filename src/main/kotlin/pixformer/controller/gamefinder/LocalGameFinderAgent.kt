@@ -1,4 +1,4 @@
-package pixformer.server.gamefinder
+package pixformer.controller.gamefinder
 
 /**
  * Mock implementation of [GameFinderAgent] that does not store any games,
