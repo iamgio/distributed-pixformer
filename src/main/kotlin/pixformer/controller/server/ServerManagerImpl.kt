@@ -12,7 +12,6 @@ import pixformer.controller.realign.Realigner
 import pixformer.controller.server.command.Command
 import pixformer.model.Level
 import pixformer.model.LevelData
-import pixformer.model.entity.EntityFactory
 import pixformer.model.entity.dynamic.player.Player
 import pixformer.model.modelinput.CompleteModelInput
 import pixformer.server.MessageToServer
@@ -21,6 +20,8 @@ import pixformer.server.Server
 import pixformer.server.ServerImpl
 import pixformer.server.gamefinder.GameFinderAgent
 import pixformer.server.gamefinder.HttpGameFinderAgent
+import pixformer.server.gamefinder.LocalGameFinderAgent
+import pixformer.server.gamefinder.Network
 import kotlin.concurrent.thread
 import kotlin.jvm.optionals.getOrNull
 
@@ -42,7 +43,7 @@ class ServerManagerImpl(
     private var running = false
     private var server: Server? = null
     private val realigner = Realigner(this)
-    private val gameFinder: GameFinderAgent = HttpGameFinderAgent()
+    private val gameFinder: GameFinderAgent
 
     private val onDispatchListeners = mutableListOf<(Command) -> Unit>()
 
@@ -56,6 +57,7 @@ class ServerManagerImpl(
         get() = server != null
 
     override val players = mutableMapOf<Int, Player>()
+
     override var playablePlayerIndex: Int? = null
 
     override var session: DefaultClientWebSocketSession? = null
@@ -78,27 +80,39 @@ class ServerManagerImpl(
                 players[index] = player
             }
         }
+
+        gameFinder = HttpGameFinderAgent().takeIf { it.isAccessible() }
+            ?: LocalGameFinderAgent()
+
+        println("Using game finder agent: ${gameFinder::class.simpleName}")
     }
 
     override fun startServer() {
+        thread {
+            val ip = Network.getIp() ?: throw IOException("Could not retrieve IP address.")
+
+            // Push the game to the game finder to allow lookups.
+            gameFinder.addGame(gameName, ip)
+
+            println("Server started at $ip:$port")
+        }
+
         server = ServerImpl(this)
         server!!.start(port)
-
-        /*if (!gameFinder.addGame(gameName, host)) {
-            throw IOException("Could not add game to game finder.")
-        }*/
     }
 
     override fun connectToServer() {
         running = true
 
-        /*if (!isLeader) {
-            gameFinder.getGameIp("pixformer")
+        if (!isLeader) {
+            // Retrieve the game IP from the game finder.
+            gameFinder
+                .getGameIp(gameName)
                 ?.let { host = it }
-                ?: throw IOException("Could not retrieve game IP.")
+                ?: System.err.println("Could not retrieve game IP from game finder.")
 
             println("Connecting to server at $address")
-        }*/
+        }
 
         // Add a shutdown hook to disconnect from the server.
         Thread { disconnect() }.let {
@@ -120,7 +134,10 @@ class ServerManagerImpl(
         }
     }
 
-    override fun startRealignmentRoutine(entityFactory: EntityFactory) {
+    override fun startRealignmentRoutine() {
+        if (isLeader) return
+        val entityFactory = levelSupplier()!!.data.entityFactory
+
         realignmentThread =
             thread(start = true) {
                 var attempt = 0

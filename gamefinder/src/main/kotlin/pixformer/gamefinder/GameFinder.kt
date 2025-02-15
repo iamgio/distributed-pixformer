@@ -1,6 +1,8 @@
 package pixformer.gamefinder
 
 import io.ktor.http.HttpStatusCode
+import io.ktor.server.application.Application
+import io.ktor.server.application.log
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import io.ktor.server.response.respondText
@@ -12,9 +14,16 @@ import java.util.concurrent.ConcurrentHashMap
 private const val PORT = 8083
 
 fun main() {
-    // In-memory store for game rooms.
-    // For thread safety in production, consider using a ConcurrentHashMap.
+    startGameFinderServer()
+}
+
+fun startGameFinderServer() {
     val games: MutableMap<String, String> = ConcurrentHashMap<String, String>()
+
+    fun Application.logGames() {
+        log.info("Current game rooms:")
+        games.forEach { (name, ip) -> log.info("  $name: $ip") }
+    }
 
     suspend fun RoutingCall.errorMissingParameter(name: String) {
         respondText("Missing or empty '$name' parameter.", status = HttpStatusCode.BadRequest)
@@ -22,6 +31,10 @@ fun main() {
 
     embeddedServer(Netty, port = PORT) {
         routing {
+            get("/check") {
+                call.respondText("Pixformer Game Finder is running.")
+            }
+
             get("/get") {
                 // Extract query parameters
                 val name = call.request.queryParameters["name"]
@@ -41,6 +54,8 @@ fun main() {
                         call.respondText("Game room '$name' not found.", status = HttpStatusCode.NotFound)
                     }
                 }
+
+                logGames()
             }
 
             get("/add") {
@@ -68,9 +83,11 @@ fun main() {
                         call.respondText("Game room '$name' added with IP: $ip")
                     }
                 }
+
+                logGames()
             }
 
-            get("/end") {
+            get("/remove") {
                 val name = call.request.queryParameters["name"]
 
                 when {
@@ -87,6 +104,8 @@ fun main() {
                         call.respondText("Game room '$name' not found.", status = HttpStatusCode.NotFound)
                     }
                 }
+
+                logGames()
             }
         }
     }.start(wait = true)

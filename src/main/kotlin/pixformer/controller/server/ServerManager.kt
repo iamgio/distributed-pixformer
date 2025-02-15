@@ -4,7 +4,6 @@ import io.ktor.client.plugins.websocket.DefaultClientWebSocketSession
 import pixformer.controller.server.command.Command
 import pixformer.model.Level
 import pixformer.model.LevelData
-import pixformer.model.entity.EntityFactory
 import pixformer.model.entity.dynamic.player.Player
 import pixformer.model.modelinput.CompleteModelInput
 
@@ -88,9 +87,8 @@ interface ServerManager {
 
     /**
      * Sets the periodic reconciliation process up.
-     * @param entityFactory factory for creating entities
      */
-    fun startRealignmentRoutine(entityFactory: EntityFactory)
+    fun startRealignmentRoutine()
 
     /**
      * Disconnects from the server, and also stops the server if this client is the leader.

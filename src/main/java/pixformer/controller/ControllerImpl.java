@@ -87,7 +87,6 @@ public final class ControllerImpl implements Controller {
             final ServerManager serverManager = new ServerManagerImpl(level.getData().name());
             this.serverManager.set(serverManager);
             this.getServerManager().connectOrStart(); // Distributed patch!
-            this.getServerManager().startRealignmentRoutine(level.getData().entityFactory());
             level.init();
             this.getGameLoopManager().start();
         });

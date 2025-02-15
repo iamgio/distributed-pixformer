@@ -4,10 +4,13 @@ import java.net.Inet4Address
 import java.net.NetworkInterface
 
 /**
- *
+ * Utility class for network operations.
  */
 object Network {
-    fun getLocalIPAddress(): String? {
+    /**
+     * Returns the local IP address of the machine, if available.
+     */
+    fun getIp(): String? {
         val interfaces = NetworkInterface.getNetworkInterfaces() ?: return null
         for (networkInterface in interfaces) {
             // Skip inactive interfaces or loopback interfaces if necessary.

@@ -45,6 +45,7 @@ data object PlayerConnectMessage : MessageToServerType {
             if (frame is Frame.Text) {
                 val playerIndex = frame.readText().toInt()
                 manager.playablePlayerIndex = playerIndex
+                manager.startRealignmentRoutine()
                 println("You were assigned player index $playerIndex")
             }
         }

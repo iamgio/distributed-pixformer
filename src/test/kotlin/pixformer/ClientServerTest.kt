@@ -31,9 +31,9 @@ class ClientServerTest {
     private val entityFactory: EntityFactory = EntityFactoryImpl(NullGraphicsComponentFactory(), world)
     private val level: Level = LevelImpl(LevelData("test", entityFactory, emptySet(), 3, 0, emptyMap()))
 
-    private val server: ServerManager = ServerManagerImpl()
-    private val client1: ServerManager = ServerManagerImpl()
-    private val client2: ServerManager = ServerManagerImpl()
+    private val server: ServerManager = ServerManagerImpl("")
+    private val client1: ServerManager = ServerManagerImpl("")
+    private val client2: ServerManager = ServerManagerImpl("")
 
     @BeforeTest
     fun setUp() {
