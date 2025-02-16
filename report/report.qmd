@@ -476,7 +476,7 @@ After launching the game, the main menu is displayed. From there, the user can c
 ![Menu](img/screenshots/menu.png "The main menu")
 
 |   Jump  | Move right | Move left | Ability (fireball) | Sprint | Go to menu |
-|:-------:|:----------:|:----------|:------------------:|:------:|:----------:|
+|:-------:|:----------:|:---------:|:------------------:|:------:|:----------:|
 | W/Space | D          | A         | Shift              | CTRL   | ESC        |
 "In-game key bindings"
 
@@ -501,4 +501,4 @@ In order to get to the end of the level (the end pole), you can:
 I enjoyed working on this project, as it involved a lot of pre-planning to give life to a maintainable, modular product. I put a considerable effort into this project, and I feel satisfied with the final product in its integrity.  
 I find its strengths in the ease of connecting with other clients and smoothness of the gameplay, while I find its biggest weakness in the sometimes-big difference between what the client sees and the game state received from the reconciliation, meaning there is some discrepancy between the direct user input and what the server evaluates. I struggled, unfortunately, to find a solution to this issue.
 
-Taking on an already big project (credits go to my original team), an intriguing challenge was finding out how to connect the 'old' with the 'new' while altering as few elements as possible from the legacy codebase.
+Taking on an already big project (credits go to my original team), an intriguing challenge was finding out how to connect the 'old' with the 'new' while altering as few elements as possible from the legacy codebase, while teaching me a lot about distributed systems.
