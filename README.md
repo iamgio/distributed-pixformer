@@ -10,9 +10,9 @@ and then extended for the Distributed System course.
 
 ## Controls
 
-| **Jump**         | **Left**         | **Right**       | **Ability** | **Sprint** |
-|------------------|------------------|-----------------|-------------|------------|
-| W, Space         | A                | D               | Shift       | CTRL       |
+| Jump     | Move left | Move right | Ability | Sprint | Go to menu |
+|----------|-----------|------------|---------|--------|------------|
+| W, Space | A         | D          | Shift   | CTRL   | ESC        |
 
 ## Screenshots
 
