@@ -1,0 +1,18 @@
+.docname {Pixformer}
+.docauthor {Giorgio Garofalo}
+.doclang {English}
+.doctype {slides}
+
+.theme layout:{minimal}
+
+.pagemargin {bottomrightcorner}
+	.currentpage / .totalpages
+
+# Pixformer 
+
+.text {Multiplayer *Super Mario Bros.* clone} size:{larger}
+
+---
+
+.docauthor  
+Distributed Systems, A.Y. 2024-2025 @ Unibo  
