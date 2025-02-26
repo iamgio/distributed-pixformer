@@ -31,7 +31,7 @@ Distributed Systems, A.Y. 2024-2025 @ Unibo
 		
 		!(50px)[Koopa shell](img/sprites/koopa_shell.png "Koopa in its shell")
 		
-# Power-ups
+## Power-ups
 
 !(40px)[Default state](img/sprites/mario_small_jump.png "Default state")
 
@@ -45,3 +45,45 @@ Distributed Systems, A.Y. 2024-2025 @ Unibo
 	!(40px)[Flower state](img/sprites/mario_flower_jump.png)
 
 # Demo
+
+# Architecture
+
+.row cross:{start}
+	!(75%)[Infrastructure](../report/img/component-uml/infrastructure.svg)
+	
+	.container margin:{40px 0 0 -50px}
+		- ***Leader-follower* pattern**: one client overlaps with the game server, becoming the *leader*.
+		- The **Game Finder Server** acts like a DDNS, mapping active game names to their server address.
+
+# Interaction
+
+## Game finding
+
+When a client chooses a level to play, the game finder server is reached to look for any active
+games on the same level,  
+or to create one otherwise.
+
+!(55%)[Game finding](../report/img/sequence-uml/gamefinder.svg)
+
+## Handshake
+
+!(50%)[Handshake](../report/img/sequence-uml/handshake.svg)
+
+## User input
+
+The system adopts a ***client-side prediction and server reconciliation*** pattern,  
+prioritizing **availability over consistency** for a smooth user experience.
+
+.row cross:{start}
+	!(1200px)[User input](../report/img/sequence-uml/input.svg)
+	
+	- The client processes user inputs immediately, sending them to the server;
+	- The server updates its internal game state and blindly forwards the message to all other clients,
+	  which update their game state as well.
+
+## Game state reconciliation
+
+Each client periodically sends a reconciliation request to the server, to ensure consistency is kept.  
+When the state is received, the internal game state is updated.
+
+!(70%)[Reconciliation](../report/img/sequence-uml/reconciliation.svg)
