@@ -9,7 +9,9 @@ out/
 .metals/
 .project
 .classpath
+.kotlin/
 .settings/
+.DS_Store
 
 # Quarkdown
 report/output/

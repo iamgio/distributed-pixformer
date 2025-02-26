@@ -2,8 +2,8 @@
 .docauthor {Giorgio Garofalo}
 .doclang {English}
 .doctype {slides}
-
 .theme layout:{minimal}
+.autopagebreak maxdepth:{2}
 
 .pagemargin {bottomrightcorner}
 	.currentpage / .totalpages
@@ -16,3 +16,32 @@
 
 .docauthor  
 Distributed Systems, A.Y. 2024-2025 @ Unibo  
+
+# The game
+
+!(80%)[](../report/img/screenshots/game2.png)
+
+## Enemies
+
+.row alignment:{spaceevenly}
+	!(50px)[Goomba](img/sprites/goomba.png "Goomba")
+	
+	.column
+		!(50px)[Koopa](img/sprites/koopa.png "Koopa")
+		
+		!(50px)[Koopa shell](img/sprites/koopa_shell.png "Koopa in its shell")
+		
+# Power-ups
+
+!(40px)[Default state](img/sprites/mario_small_jump.png "Default state")
+
+.grid columns:{2} alignment:{center} gap:{1cm}
+	!(40px)[Mushroom](img/sprites/mushroom.png "Mushroom")
+	
+	!(40px)[Mushroom state](img/sprites/mario_big_jump.png)
+	
+	!(50px)[Flower](img/sprites/flower.png "Fire Flower")
+	
+	!(40px)[Flower state](img/sprites/mario_flower_jump.png)
+
+# Demo
