@@ -10,7 +10,9 @@
 
 # Pixformer 
 
-.text {Multiplayer *Super Mario Bros.* clone} size:{larger}
+.text {A multiplayer **Super Mario Bros.** clone} size:{larger}
+
+https://github.com/iamgio/distributed-pixformer
 
 ---
 
@@ -43,6 +45,18 @@ Distributed Systems, A.Y. 2024-2025 @ Unibo
 	!(50px)[Flower](img/sprites/flower.png "Fire Flower")
 	
 	!(40px)[Flower state](img/sprites/mario_flower_jump.png)
+
+# Game over
+
+.row gap:{1cm}
+	![Game over: Goomba](img/gif/defeat-goomba.gif)
+
+	.fragment
+		![Game over: pit](img/gif/pit.gif)
+
+# Success
+
+!(60%)[Success](img/gif/pole.gif)
 
 # Demo
 
