@@ -2,13 +2,15 @@
 .docauthor {Giorgio Garofalo}
 .doclang {English}
 .doctype {slides}
-.theme layout:{minimal}
+.theme layout:{latex}
 .autopagebreak maxdepth:{2}
+.pageformat alignment:{center}
+.slides center:{yes}
 
 .pagemargin {bottomrightcorner}
 	.currentpage / .totalpages
 
-# Pixformer 
+#! Pixformer 
 
 .text {A multiplayer **Super Mario Bros.** clone} size:{larger}
 
