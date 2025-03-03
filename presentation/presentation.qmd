@@ -51,8 +51,7 @@ Distributed Systems, A.Y. 2024-2025 @ Unibo
 .row gap:{1cm}
 	![Game over: Goomba](img/gif/defeat-goomba.gif)
 
-	.fragment
-		![Game over: pit](img/gif/pit.gif)
+	![Game over: pit](img/gif/pit.gif)
 
 # Success
 
@@ -81,6 +80,9 @@ or to create one otherwise.
 
 ## Handshake
 
+On join, the client waits to be assigned a player index from the server.  
+When the handshake is complete, the persistent WebSocket session is kept active.
+
 !(50%)[Handshake](../report/img/sequence-uml/handshake.svg)
 
 ## User input
@@ -94,6 +96,8 @@ prioritizing **availability over consistency** for a smooth user experience.
 	- The client processes user inputs immediately, sending them to the server;
 	- The server updates its internal game state and blindly forwards the message to all other clients,
 	  which update their game state as well.
+	- The message format is `n|action`, with `n` being the player index.  
+	  Example: `2|jump`.
 
 ## Game state reconciliation
 
@@ -101,3 +105,43 @@ Each client periodically sends a reconciliation request to the server, to ensure
 When the state is received, the internal game state is updated.
 
 !(70%)[Reconciliation](../report/img/sequence-uml/reconciliation.svg)
+
+<<<
+
+.row gap:{2.5cm}
+	.container alignment:{start}
+		###! Game state reconciliation
+		
+		Sample game state shared from server to client
+
+	```json
+	{
+	  "name": "Level 1",
+	  "spawnPointX": 5,
+	  "spawnPointY": 2,
+	  "scores": {
+	    "1": {
+	      "points": 2,
+	      "coinsNumber": 10
+	    },
+	    "2": {
+	        "points": 5,
+	        "coinsNumber": 20
+	      }
+	  },
+	  "entities": [
+	    {
+	      "type": "player",
+	      "x": 5.0,
+	      "y": 2.0,
+	      "velocity": {
+	        "x": 0.1,
+	        "y": 0.0
+	      },
+	      "playerIndex": 1,
+	      "powerup": "Mushroom"
+	    },
+	    ...
+	  ]
+	}
+	```
